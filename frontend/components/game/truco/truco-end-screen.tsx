@@ -56,7 +56,10 @@ export function TrucoEndScreen({
                 {game.scores[team]}
               </span>
               {team === game.winnerTeam && (
-                <Trophy aria-label="Time vencedor" className="size-4" />
+                <Trophy
+                  aria-label="Time vencedor"
+                  className="size-4 text-gold fill-gold/30"
+                />
               )}
             </li>
           ))}

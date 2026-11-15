@@ -121,7 +121,7 @@ export function GameShowcase({ onPick }: { onPick: (gameId: GameId) => void }) {
           id="jogos-titulo"
           className="font-heading text-3xl font-bold text-balance sm:text-4xl"
         >
-          Quatro mesas, um só link
+          Seis jogos, um só link
         </h2>
         <p className="max-w-2xl text-felt-muted">
           Espie uma rodada de cada jogo. O anfitrião escolhe antes de começar e
@@ -137,7 +137,7 @@ export function GameShowcase({ onPick }: { onPick: (gameId: GameId) => void }) {
         >
           <TabsList
             aria-label="Jogos disponíveis"
-            className="grid h-auto w-full grid-cols-2 gap-1.5 bg-felt-deep/80 p-1.5 ring-1 ring-felt-line group-data-horizontal/tabs:h-auto md:grid-cols-4"
+            className="grid h-auto w-full grid-cols-2 gap-1.5 bg-felt-deep/80 p-1.5 ring-1 ring-felt-line group-data-horizontal/tabs:h-auto sm:grid-cols-3 lg:grid-cols-6"
           >
             {GAMES.map((game) => {
               const { suit, short } = GAME_IDENTITY[game.id]

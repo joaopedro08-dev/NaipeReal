@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { describeStartProblem } from "@/lib/game/domain/catalog"
 import type { RoomState } from "@/lib/game/domain/types"
 import { useGame } from "@/hooks/use-game"
+import { cn } from "@/lib/utils"
 
 type RoomCommands = ReturnType<typeof useRoomCommands>
 
@@ -67,15 +68,27 @@ export function MatchEnd({
                 <h2 id="placar-sala" className="font-heading text-lg font-semibold">
                   Placar da sala
                 </h2>
-                <ol className="divide-y">
-                  {roomWins.map((player) => (
-                    <li key={player.id} className="flex items-center justify-between py-2">
-                      <span className="truncate">{player.nickname}</span>
-                      <span className="font-semibold tabular-nums">
-                        {player.wins} {player.wins === 1 ? "vitória" : "vitórias"}
-                      </span>
-                    </li>
-                  ))}
+                <ol className="divide-y divide-border/60">
+                  {roomWins.map((player) => {
+                    const isViewer = player.id === room?.viewerId
+                    return (
+                      <li
+                        key={player.id}
+                        className={cn(
+                          "flex items-center justify-between py-2 text-sm",
+                          isViewer && "font-semibold text-gold"
+                        )}
+                      >
+                        <span className="truncate">
+                          {player.nickname}
+                          {isViewer && " (você)"}
+                        </span>
+                        <span className="tabular-nums font-semibold">
+                          {player.wins} {player.wins === 1 ? "vitória" : "vitórias"}
+                        </span>
+                      </li>
+                    )
+                  })}
                 </ol>
               </section>
             )}

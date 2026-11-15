@@ -7,8 +7,9 @@ import { Check, EyeOff, Flag, Megaphone, Play } from "lucide-react"
 import {
   CardBack,
   CardFace,
-  CARD_SIZES,
+  cardBoxStyle,
 } from "@/components/game/cards/card-face"
+import { useLargeCardsPreference } from "@/lib/game/infrastructure/visual-preferences"
 import { GameButton } from "@/components/game/game-button"
 import { RefusalMessage } from "@/components/game/refusal-message"
 import { FoldButton } from "@/components/game/truco/fold-button"
@@ -41,6 +42,8 @@ function HandCard({
   disabled: boolean
   onPlay?: () => void
 }) {
+  const largeCards = useLargeCardsPreference()
+  const boxStyle = cardBoxStyle("hand", largeCards)
   const label = `${cardName(card)}${manilha ? ", manilha" : ""}${suggested ? ", jogada sugerida" : ""}`
   const face = (
     <m.div layoutId={playedCardLayoutId(card)} className="relative">
@@ -76,7 +79,7 @@ function HandCard({
       onClick={onPlay}
       className={cn(
         "block rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-sky-400 active:scale-95 disabled:opacity-65",
-        CARD_SIZES.hand.box
+        boxStyle
       )}
     >
       {face}
@@ -232,6 +235,8 @@ export function TrucoHand({
   onAction: (action: TrucoAction) => void
 }) {
   const [coverTurn, setCoverTurn] = useState<number | null>(null)
+  const largeCards = useLargeCardsPreference()
+  const handBox = cardBoxStyle("hand", largeCards)
   const canPlay = game.moves.play
   const covering = game.moves.cover && coverTurn === game.turnNumber
   const cards = sortByStrength(game.hand, game.manilha)
@@ -292,7 +297,7 @@ export function TrucoHand({
                       onClick={() => onAction({ type: "playBlind", slot })}
                       className={cn(
                         "block rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-sky-400 disabled:opacity-65",
-                        CARD_SIZES.hand.box
+                        handBox
                       )}
                     >
                       <CardBack className="size-full" />

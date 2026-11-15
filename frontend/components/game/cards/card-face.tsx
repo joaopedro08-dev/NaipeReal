@@ -58,7 +58,7 @@ export const CARD_SIZES = {
   },
 } as const
 
-const LARGE_CARD_SIZES = {
+export const LARGE_CARD_SIZES = {
   hand: {
     box: "h-24 w-16 sm:h-28 sm:w-20 lg:h-32 lg:w-24",
     rank: "text-2xl lg:text-3xl",
@@ -70,6 +70,16 @@ const LARGE_CARD_SIZES = {
     suit: "size-8 lg:size-10",
   },
 } as const
+
+export const cardBoxStyle = (
+  size: keyof typeof CARD_SIZES,
+  large = false
+): string => {
+  if (large && size in LARGE_CARD_SIZES) {
+    return LARGE_CARD_SIZES[size as keyof typeof LARGE_CARD_SIZES].box
+  }
+  return CARD_SIZES[size].box
+}
 
 export function CardFace({
   card,
@@ -113,13 +123,22 @@ export function CardFace({
   )
 }
 
-export function CardBack({ className }: { className?: string }) {
+export function CardBack({
+  size,
+  className,
+}: {
+  size?: keyof typeof CARD_SIZES
+  className?: string
+}) {
+  const large = useLargeCardsPreference()
+  const box = size ? cardBoxStyle(size, large) : undefined
   return (
     <div
       role="img"
       aria-label="Carta virada"
       className={cn(
         "card-back rounded-lg shadow-md ring-1 ring-black/40",
+        box,
         className
       )}
     />

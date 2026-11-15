@@ -60,7 +60,10 @@ export function TresTrincasEndScreen({
                   {player.id === room.viewerId && " (você)"}
                 </span>
                 {player.id === game.winnerId && (
-                  <Trophy aria-label="Vencedor" className="size-4 shrink-0" />
+                  <Trophy
+                    aria-label="Vencedor"
+                    className="size-4 shrink-0 text-gold fill-gold/30"
+                  />
                 )}
                 <span className="ml-auto shrink-0 text-base font-semibold tabular-nums">
                   {player.sets.length}/{SETS_TO_WIN}

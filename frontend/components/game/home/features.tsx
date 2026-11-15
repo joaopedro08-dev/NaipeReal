@@ -129,7 +129,7 @@ const TILES = [
   {
     icon: Lightbulb,
     title: "Dicas para aprender",
-    text: "Veja a força das cartas no Truco, as melhores capturas no Rouba Monte, as trincas prontas ou o seu jogo no Poker. Dá para desligar quando quiser.",
+    text: "Veja a força das cartas no Truco, as melhores capturas no Rouba Monte, jogos na Cacheta ou a melhor ação no Blackjack. Dá para desligar quando quiser.",
     art: HintArt,
     span: "lg:col-span-4",
   },

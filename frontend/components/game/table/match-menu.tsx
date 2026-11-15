@@ -1,13 +1,12 @@
 "use client"
 
-import { Menu, X } from "lucide-react"
+import { BookOpen, Menu, X } from "lucide-react"
 
 import { GameButton } from "@/components/game/game-button"
 import { LeaveMatchButton } from "@/components/game/room/leave-button"
 import { HintsToggle } from "@/components/game/table/hints-toggle"
 import { HistoryList } from "@/components/game/table/history-list"
 import { HowToPlay } from "@/components/game/table/how-to-play"
-import { TutorialDialog } from "@/components/game/table/tutorial-dialog"
 import { PauseToggle } from "@/components/game/table/pause-toggle"
 import { PreferencesPanel } from "@/components/game/table/preferences-panel"
 import { RoomCodeVisibility } from "@/components/game/room/room-code-visibility"
@@ -23,6 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { gameInfo } from "@/lib/game/domain/catalog"
 import type { RoomState } from "@/lib/game/domain/types"
 import type { GameId } from "@/lib/game/domain/types"
 
@@ -55,87 +55,95 @@ export function MatchMenu({
 }) {
   return (
     <>
-      <TutorialDialog
-        gameId={gameId}
-        gameName={gameName}
-        sections={rules}
-        autoOpen
-        showTrigger={false}
-      />
       <Sheet>
-      <SheetTrigger asChild>
-        <GameButton aria-label="Abrir menu" className="px-0">
-          <Menu aria-hidden />
-        </GameButton>
-      </SheetTrigger>
-      <SheetContent
-        showCloseButton={false}
-        className="w-full gap-0 overflow-y-auto sm:max-w-sm"
-      >
-        <SheetHeader className="flex-row items-center justify-between gap-2 p-4 pb-2">
-          <div>
-            <SheetTitle className="text-lg">Menu</SheetTitle>
-            <SheetDescription className="text-sm">
-              Sala <RoomCodeVisibility code={room.code} /> · {subtitle}
-            </SheetDescription>
-          </div>
-          <SheetClose asChild>
-            <Button
-              variant="ghost"
-              aria-label="Fechar menu"
-              className="size-11"
-            >
-              <X aria-hidden className="size-5" />
-            </Button>
-          </SheetClose>
-        </SheetHeader>
+        <SheetTrigger asChild>
+          <GameButton aria-label="Abrir menu" className="px-0">
+            <Menu aria-hidden />
+          </GameButton>
+        </SheetTrigger>
+        <SheetContent
+          showCloseButton={false}
+          className="w-full gap-0 overflow-y-auto sm:max-w-sm"
+        >
+          <SheetHeader className="flex-row items-center justify-between gap-2 p-4 pb-2">
+            <div>
+              <SheetTitle className="text-lg">Menu</SheetTitle>
+              <SheetDescription className="text-sm">
+                Sala <RoomCodeVisibility code={room.code} /> · {subtitle}
+              </SheetDescription>
+            </div>
+            <SheetClose asChild>
+              <Button
+                variant="ghost"
+                aria-label="Fechar menu"
+                className="size-11"
+              >
+                <X aria-hidden className="size-5" />
+              </Button>
+            </SheetClose>
+          </SheetHeader>
 
-        <div className="flex flex-col gap-4 p-4 pt-2">
-          <section className="flex flex-col gap-2">
-            <h3 className="font-heading text-sm font-semibold">Dicas</h3>
-            <HintsToggle
-              allowed={room.hintsAllowed}
-              enabled={hintsEnabled}
-              onChange={onHintsChange}
-            />
-            {hintsContent}
-            {room.hintsAllowed && hintsEnabled && !hintsReady && (
-              <p className="text-sm text-muted-foreground">
-                As dicas aparecem na sua vez.
-              </p>
-            )}
-          </section>
-
-          <Separator />
-
-          <PauseToggle room={room} />
-
-          <Separator />
-
-          <PreferencesPanel />
-
-          <Separator />
-
-          <section className="flex flex-col gap-2">
-            <h3 className="font-heading text-sm font-semibold">Como jogar</h3>
-            <TutorialDialog gameId={gameId} gameName={gameName} sections={rules} />
-            <HowToPlay sections={rules} />
-          </section>
-
-          <Separator />
-
-          <div className="lg:hidden">
+          <div className="flex flex-col gap-4 p-4 pt-2">
             <section className="flex flex-col gap-2">
-              <h3 className="font-heading text-sm font-semibold">
-                {historyTitle}
-              </h3>
-              <HistoryList history={history} />
+              <h3 className="font-heading text-sm font-semibold">Dicas</h3>
+              <HintsToggle
+                allowed={room.hintsAllowed}
+                enabled={hintsEnabled}
+                onChange={onHintsChange}
+              />
+              {hintsContent}
+              {room.hintsAllowed && hintsEnabled && !hintsReady && (
+                <p className="text-sm text-muted-foreground">
+                  As dicas aparecem na sua vez.
+                </p>
+              )}
             </section>
-          </div>
 
-          <LeaveMatchButton className="w-full" notice={leaveNotice} />
-        </div>
-      </SheetContent>
+            <Separator />
+
+            <PauseToggle room={room} />
+
+            <Separator />
+
+            <PreferencesPanel />
+
+            <Separator />
+
+            <section className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-heading text-sm font-semibold">
+                  Como jogar
+                </h3>
+                <a
+                  href={`/informacoes#${gameInfo(gameId).rulesAnchor}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-felt-muted underline-offset-2 hover:text-gold hover:underline focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  <BookOpen aria-hidden className="size-3.5" />
+                  Regras completas
+                  <span className="sr-only">
+                    de {gameName} (abre em nova aba)
+                  </span>
+                </a>
+              </div>
+              <HowToPlay sections={rules} />
+            </section>
+
+            <Separator />
+
+            <div className="lg:hidden">
+              <section className="flex flex-col gap-2">
+                <h3 className="font-heading text-sm font-semibold">
+                  {historyTitle}
+                </h3>
+                <HistoryList history={history} />
+              </section>
+            </div>
+
+            <LeaveMatchButton className="w-full" notice={leaveNotice} />
+          </div>
+        </SheetContent>
       </Sheet>
     </>
   )

@@ -18,14 +18,17 @@ import type { GameInfo } from "@/lib/game/domain/catalog"
 import type { GameId } from "@/lib/game/domain/types"
 import { cn } from "@/lib/utils"
 
-const FAN_ANGLES = [-15, -5, 5, 15] as const
-const FAN_LEFTS = ["20%", "40%", "60%", "80%"] as const
-
 const PERKS = [
   { icon: Zap, label: "Tempo real" },
   { icon: UserRoundX, label: "Sem cadastro" },
   { icon: Smartphone, label: "PC ou celular" },
 ] as const
+
+const fanAngle = (index: number, total: number): number =>
+  (index - (total - 1) / 2) * 6
+
+const fanLeft = (index: number, total: number): string =>
+  `${((index + 0.5) / total) * 100}%`
 
 const playerRange = ({ playerCounts }: GameInfo): string =>
   `${playerCounts[0]}–${playerCounts.at(-1)}`
@@ -93,7 +96,7 @@ function GameFan({
     <div
       onPointerMove={track}
       onPointerLeave={settle}
-      className="mx-auto w-full max-w-[19.5rem] [perspective:900px] sm:max-w-[27rem] lg:mx-0"
+      className="mx-auto w-full max-w-[22rem] [perspective:900px] sm:max-w-[30rem] lg:mx-0"
     >
       <m.div
         role="group"
@@ -111,12 +114,15 @@ function GameFan({
               aria-label={`Escolher ${game.name}`}
               onClick={() => onChoose(game.id)}
               className="absolute bottom-2 -ml-12 origin-bottom rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-sky-400 sm:-ml-16"
-              style={{ left: FAN_LEFTS[index], zIndex: selected ? 10 : index }}
+              style={{
+                left: fanLeft(index, GAMES.length),
+                zIndex: selected ? 10 : index,
+              }}
               initial={{ opacity: 0, y: 70, rotate: 0 }}
               animate={{
                 opacity: 1,
                 y: selected ? -26 : 0,
-                rotate: FAN_ANGLES[index],
+                rotate: fanAngle(index, GAMES.length),
               }}
               whileHover={{ y: selected ? -30 : -14 }}
               whileTap={{ scale: 0.96 }}
@@ -200,7 +206,7 @@ export function HomeHero({
         <GameFan gameId={gameId} onChoose={onChoose} />
         <p className="flex items-center gap-1.5 text-sm text-felt-muted">
           <Hand aria-hidden className="size-4 text-gold" />
-          Puxe uma carta para escolher o jogo
+          Escolha uma carta para escolher o jogo
         </p>
       </div>
 

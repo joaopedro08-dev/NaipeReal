@@ -92,7 +92,7 @@ export function PokerScreen({
       <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] lg:grid-cols-[minmax(0,1fr)_20rem]">
         <main
           tabIndex={0}
-          className="flex min-h-0 items-center justify-center overflow-hidden px-3 py-5 sm:px-8 lg:col-start-1 lg:row-start-1"
+          className="flex min-h-0 items-center justify-center overflow-hidden px-3 py-5 outline-none focus-visible:ring-1 focus-visible:ring-felt-line/50 sm:px-8 lg:col-start-1 lg:row-start-1"
         >
           <PokerTable room={room} game={game} held={held} />
         </main>

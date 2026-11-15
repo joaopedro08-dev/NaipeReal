@@ -65,7 +65,10 @@ export function BlackjackEndScreen({
                   {seat.id === room.viewerId && " (você)"}
                 </span>
                 {winner && (
-                  <Trophy aria-label="Vencedor" className="size-4 shrink-0" />
+                  <Trophy
+                    aria-label="Vencedor"
+                    className="size-4 shrink-0 text-gold fill-gold/30"
+                  />
                 )}
                 <span className="ml-auto flex shrink-0 flex-col items-end">
                   <ChipCount

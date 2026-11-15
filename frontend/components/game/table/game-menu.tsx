@@ -68,89 +68,82 @@ export function GameMenu({
 }) {
   return (
     <>
-      <TutorialDialog
-        gameId="rouba-monte"
-        gameName="Rouba Monte"
-        sections={RULE_SECTIONS}
-        autoOpen
-        showTrigger={false}
-      />
       <Sheet>
-      <SheetTrigger asChild>
-        <GameButton aria-label="Abrir menu" className="px-0">
-          <Menu aria-hidden />
-        </GameButton>
-      </SheetTrigger>
-      <SheetContent
-        showCloseButton={false}
-        className="w-full gap-0 overflow-y-auto sm:max-w-sm"
-      >
-        <SheetHeader className="flex-row items-center justify-between gap-2 p-4 pb-2">
-          <div>
-            <SheetTitle className="text-lg">Menu</SheetTitle>
-            <SheetDescription className="text-sm">
-              Sala <RoomCodeVisibility code={room.code} /> · turno{" "}
-              {game.turnNumber}
-            </SheetDescription>
-          </div>
-          <SheetClose asChild>
-            <Button
-              variant="ghost"
-              aria-label="Fechar menu"
-              className="size-11"
-            >
-              <X aria-hidden className="size-5" />
-            </Button>
-          </SheetClose>
-        </SheetHeader>
+        <SheetTrigger asChild>
+          <GameButton aria-label="Abrir menu" className="px-0">
+            <Menu aria-hidden />
+          </GameButton>
+        </SheetTrigger>
+        <SheetContent
+          showCloseButton={false}
+          className="w-full gap-0 overflow-y-auto sm:max-w-sm"
+        >
+          <SheetHeader className="flex-row items-center justify-between gap-2 p-4 pb-2">
+            <div>
+              <SheetTitle className="text-lg">Menu</SheetTitle>
+              <SheetDescription className="text-sm">
+                Sala <RoomCodeVisibility code={room.code} /> · turno{" "}
+                {game.turnNumber}
+              </SheetDescription>
+            </div>
+            <SheetClose asChild>
+              <Button
+                variant="ghost"
+                aria-label="Fechar menu"
+                className="size-11"
+              >
+                <X aria-hidden className="size-5" />
+              </Button>
+            </SheetClose>
+          </SheetHeader>
 
-        <div className="flex flex-col gap-4 p-4 pt-2">
-          <MenuSection title="Dicas">
-            <HintsToggle
-              allowed={room.hintsAllowed}
-              enabled={hintsEnabled}
-              onChange={onHintsChange}
-            />
-            {hints && hints.plays.length > 0 && (
-              <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm">
-                {hints.plays.map((play) => (
-                  <li key={play.sentence}>{play.sentence}</li>
-                ))}
-              </ol>
-            )}
-            {hints && <CardCounter hints={hints} />}
-          </MenuSection>
-
-          <Separator />
-
-          <PauseToggle room={room} />
-
-          <Separator />
-
-          <PreferencesPanel />
-
-          <Separator />
-
-          <MenuSection title="Como jogar">
-            <TutorialDialog
-              gameId="rouba-monte"
-              gameName="Rouba Monte"
-              sections={RULE_SECTIONS}
-            />
-            <HowToPlay />
-          </MenuSection>
-
-          <Separator />
-
-          <div className="lg:hidden">
-            <MenuSection title="Histórico de jogadas">
-              <HistoryList history={game.history} />
+          <div className="flex flex-col gap-4 p-4 pt-2">
+            <MenuSection title="Dicas">
+              <HintsToggle
+                allowed={room.hintsAllowed}
+                enabled={hintsEnabled}
+                onChange={onHintsChange}
+              />
+              {hints && hints.plays.length > 0 && (
+                <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm">
+                  {hints.plays.map((play) => (
+                    <li key={play.sentence}>{play.sentence}</li>
+                  ))}
+                </ol>
+              )}
+              {hints && <CardCounter hints={hints} />}
             </MenuSection>
-          </div>
 
-          <LeaveMatchButton className="w-full" />
-        </div>
-      </SheetContent>
+            <Separator />
+
+            <PauseToggle room={room} />
+
+            <Separator />
+
+            <PreferencesPanel />
+
+            <Separator />
+
+            <MenuSection title="Como jogar">
+              <TutorialDialog
+                gameId="rouba-monte"
+                gameName="Rouba Monte"
+                sections={RULE_SECTIONS}
+              />
+              <HowToPlay />
+            </MenuSection>
+
+            <Separator />
+
+            <div className="lg:hidden">
+              <MenuSection title="Histórico de jogadas">
+                <HistoryList history={game.history} />
+              </MenuSection>
+            </div>
+
+            <LeaveMatchButton className="w-full" />
+          </div>
+        </SheetContent>
       </Sheet>
     </>
   )

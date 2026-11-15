@@ -41,7 +41,12 @@ function ScoreRow({
           {player.nickname}
           {isViewer && " (você)"}
         </span>
-        {won && <Trophy aria-label="Vencedor" className="size-4 shrink-0" />}
+        {won && (
+          <Trophy
+            aria-label="Vencedor"
+            className="size-4 shrink-0 text-gold fill-gold/30"
+          />
+        )}
         <span className="ml-auto shrink-0 text-base font-semibold tabular-nums">
           {plural(player.pileSize, "carta", "cartas")}
         </span>

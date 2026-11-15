@@ -49,7 +49,7 @@ export function RoomCodeVisibility({
   const value = visible ? code : HIDDEN_ROOM_CODE
 
   return (
-    <div className="flex items-center gap-2">
+    <span className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:justify-between">
       <span
         role="status"
         aria-label={roomCodeAccessibleLabel(code, visible)}
@@ -63,7 +63,7 @@ export function RoomCodeVisibility({
               <span
                 key={position}
                 aria-hidden
-                className="flex h-14 w-11 items-center justify-center rounded-lg bg-playing-card text-3xl text-suit-black shadow-md ring-1 ring-black/20 sm:h-16 sm:w-12"
+                className="flex h-12 w-9 items-center justify-center rounded-lg bg-playing-card text-2xl text-suit-black shadow-md ring-1 ring-black/20 sm:h-16 sm:w-12 sm:text-3xl"
               >
                 {letter}
               </span>
@@ -80,6 +80,6 @@ export function RoomCodeVisibility({
       >
         {visible ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
       </GameButton>
-    </div>
+    </span>
   )
 }

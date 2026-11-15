@@ -69,7 +69,7 @@ export function CachetaScreen({
         <m.main
           layoutScroll
           tabIndex={0}
-          className="flex min-h-0 flex-col gap-3 overflow-y-auto p-3 lg:col-start-1 lg:row-start-1"
+          className="flex min-h-0 flex-col gap-3 overflow-y-auto p-3 outline-none focus-visible:ring-1 focus-visible:ring-felt-line/50 lg:col-start-1 lg:row-start-1"
         >
           <CachetaTable
             room={room}

@@ -59,19 +59,19 @@ export function RoomTicket({
       aria-label="Convite da sala"
       className="relative grid overflow-hidden rounded-3xl bg-felt-deep text-felt-foreground shadow-xl ring-1 ring-gold/40 md:grid-cols-[auto_1fr]"
     >
-      <div className="flex flex-col items-center gap-3 p-5 sm:items-start">
+      <div className="flex flex-col items-center gap-2 p-5 sm:items-start">
         <p className="text-sm font-semibold tracking-widest text-gold uppercase">
           Código da sala
         </p>
-        <h1>
+        <div className="flex flex-col items-center gap-2">
           <RoomCodeVisibility
             code={code}
             variant="tiles"
             visible={visible}
             onVisibleChange={setVisible}
           />
-        </h1>
-        <CopyCodeButton code={code} />
+          <CopyCodeButton code={code} />
+        </div>
       </div>
       <div className="relative flex flex-col justify-center gap-2 border-t-2 border-dashed border-felt-line/70 p-5 md:border-t-0 md:border-l-2">
         <span
