@@ -36,10 +36,18 @@ export class AddressRateLimiter {
   ) {}
 
   tryConsume(address: string): boolean {
-    if (this.buckets.size >= MAX_TRACKED_ADDRESSES) this.buckets.clear()
     const bucket =
       this.buckets.get(address) ?? new TokenBucket(this.capacity, this.refillPerSecond, this.clock)
+    this.buckets.delete(address)
     this.buckets.set(address, bucket)
+    this.forgetLeastRecent()
     return bucket.tryConsume()
+  }
+
+  private forgetLeastRecent(): void {
+    for (const address of this.buckets.keys()) {
+      if (this.buckets.size <= MAX_TRACKED_ADDRESSES) return
+      this.buckets.delete(address)
+    }
   }
 }

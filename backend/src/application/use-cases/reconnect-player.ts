@@ -1,5 +1,6 @@
 import { markReconnected } from "../../domain/room/room.js"
 import { err, ok } from "../../domain/shared/result.js"
+import { sameSecret } from "../../domain/shared/secret.js"
 import type { Result } from "../../domain/shared/result.js"
 import type { ApplicationErrorCode } from "../errors.js"
 import type { Clock } from "../ports.js"
@@ -22,7 +23,8 @@ export class ReconnectPlayer {
 
     const player = room.value.players.find(
       (seated) =>
-        seated.nickname === input.nickname && seated.reconnectToken === input.reconnectToken
+        seated.nickname === input.nickname &&
+        sameSecret(seated.reconnectToken, input.reconnectToken)
     )
     if (!player) return err("INVALID_RECONNECT")
 

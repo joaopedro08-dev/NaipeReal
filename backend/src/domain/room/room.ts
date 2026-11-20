@@ -52,7 +52,8 @@ export const statusOf = <State>(room: Room<State>, rules: RoomRules<State>): Roo
   return rules.isFinished(room.game) ? "finished" : "playing"
 }
 
-export const hostIdOf = (room: Room): PlayerId | null => room.players[0]?.id ?? null
+export const hostIdOf = (room: Room): PlayerId | null =>
+  (room.players.find((player) => player.connected) ?? room.players[0])?.id ?? null
 
 export const isHost = (room: Room, playerId: PlayerId): boolean => hostIdOf(room) === playerId
 

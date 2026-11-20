@@ -97,6 +97,19 @@ describe("anfitrião", () => {
   })
 })
 
+describe("anfitrião ausente", () => {
+  it("passa o comando ao primeiro jogador conectado enquanto o anfitrião está fora", () => {
+    const offline = markDisconnected(roomWith("a", "b", "c"), "a", 1_000)
+    expect(hostIdOf(offline)).toBe("b")
+    expect(hostIdOf(markReconnected(offline, "a", 2_000))).toBe("a")
+  })
+
+  it("mantém o primeiro da lista quando ninguém está conectado", () => {
+    const empty = markDisconnected(markDisconnected(roomWith("a", "b"), "a", 1), "b", 2)
+    expect(hostIdOf(empty)).toBe("a")
+  })
+})
+
 describe("RNF-07 sala vazia", () => {
   it("marca quando o último jogador desconecta", () => {
     const room = markDisconnected(markDisconnected(roomWith("a", "b"), "a", 100), "b", 200)

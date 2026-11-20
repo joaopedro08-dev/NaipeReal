@@ -113,6 +113,21 @@ describe("HTTP", () => {
     expect(metrics).toContain("nodejs_eventloop_lag_p99_seconds")
     expect((await fetch(`${url}/metrics`)).status).toBe(404)
   })
+
+  it("marca as respostas JSON contra detecção de tipo", async () => {
+    const response = await fetch(`${url}/healthz`)
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff")
+  })
+
+  it("falha ao subir quando a porta já está ocupada", async () => {
+    const config = loadConfig({
+      PORT: String(app.port),
+      METRICS_PORT: "0",
+      LOG_LEVEL: "silent",
+      NODE_ENV: "test",
+    })
+    await expect(startApp(config, silentLogger)).rejects.toThrow(/EADDRINUSE/)
+  })
 })
 
 describe("RF-01 a RF-03 sala", () => {
@@ -530,6 +545,38 @@ describe("partida pela rede", () => {
     expect(await connects({ "cf-connecting-ip": client, "x-forwarded-for": "1.1.1.1" })).toBe(true)
     expect(await connects({ "cf-connecting-ip": client, "x-forwarded-for": "2.2.2.2" })).toBe(false)
     expect(await connects({ "cf-connecting-ip": "203.0.113.8" })).toBe(true)
+
+    await proxied.stop()
+  })
+
+  it("com X-Forwarded-For, usa o salto mais próximo e ignora entradas forjadas", async () => {
+    const proxied = await startApp(
+      loadConfig({
+        PORT: "0",
+        METRICS_PORT: "0",
+        LOG_LEVEL: "silent",
+        NODE_ENV: "test",
+        TRUST_PROXY: "true",
+        MAX_CONNECTIONS_PER_IP: "1",
+      }),
+      silentLogger
+    )
+    const connects = (forwardedFor: string) =>
+      new Promise((resolve) => {
+        const socket = io(`http://127.0.0.1:${proxied.port}`, {
+          transports: ["websocket"],
+          forceNew: true,
+          reconnection: false,
+          extraHeaders: { "x-forwarded-for": forwardedFor },
+        })
+        opened.push(socket)
+        socket.once("connect", () => resolve(true))
+        socket.once("connect_error", () => resolve(false))
+      })
+
+    expect(await connects("1.1.1.1, 203.0.113.7")).toBe(true)
+    expect(await connects("2.2.2.2, 203.0.113.7")).toBe(false)
+    expect(await connects("203.0.113.8")).toBe(true)
 
     await proxied.stop()
   })

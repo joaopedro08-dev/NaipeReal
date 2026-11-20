@@ -17,11 +17,23 @@ export interface SocketServerOptions {
   readonly maxConnectionsPerAddress: number
 }
 
+const FORWARDED_FOR = "x-forwarded-for"
+
+const headerValues = (value: string | string[] | undefined): string[] =>
+  (Array.isArray(value) ? value.join(",") : (value ?? ""))
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0)
+
 const firstHeaderValue = (value: string | string[] | undefined): string | undefined =>
-  (Array.isArray(value) ? value[0] : value)?.split(",")[0]?.trim()
+  headerValues(value)[0]
+
+const nearestForwardedAddress = (req: IncomingMessage): string | undefined =>
+  headerValues(req.headers[FORWARDED_FOR]).at(-1)
 
 const proxiedAddressOf = (req: IncomingMessage, clientIpHeader: string): string | undefined =>
-  firstHeaderValue(req.headers[clientIpHeader]) ?? firstHeaderValue(req.headers["x-forwarded-for"])
+  (clientIpHeader === FORWARDED_FOR ? undefined : firstHeaderValue(req.headers[clientIpHeader])) ??
+  nearestForwardedAddress(req)
 
 const addressOf = (req: IncomingMessage, options: SocketServerOptions): string =>
   (options.trustProxy ? proxiedAddressOf(req, options.clientIpHeader) : undefined) ??

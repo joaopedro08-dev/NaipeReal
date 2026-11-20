@@ -1,5 +1,10 @@
 import type { Logger } from "../application/ports.js"
-import { createAppHttpServer, createMetricsServer } from "../infrastructure/http-server.js"
+import {
+  closeServer,
+  createAppHttpServer,
+  createMetricsServer,
+  listen,
+} from "../infrastructure/http-server.js"
 import { loadNextFrontend } from "../infrastructure/next-frontend.js"
 import { createSocketServer } from "../infrastructure/socket-server.js"
 import type { AppConfig } from "./config.js"
@@ -11,19 +16,10 @@ export interface RunningApp {
   stop(): Promise<void>
 }
 
-const listen = (
-  server: { listen(port: number, host: string, done: () => void): unknown; address(): unknown },
-  port: number,
-  host: string
-): Promise<number> =>
-  new Promise((resolve) => {
-    server.listen(port, host, () => resolve((server.address() as { port: number }).port))
-  })
-
 export const startApp = async (config: AppConfig, logger: Logger): Promise<RunningApp> => {
   const { controller, metrics, scheduler, sweepRooms } = buildContainer(config, logger)
   const http = createAppHttpServer(logger)
-  const metricsServer = createMetricsServer(metrics.registry)
+  const metricsServer = createMetricsServer(metrics.registry, logger)
   const servesDevFrontend = config.frontendDir !== null && !config.production
 
   if (config.production && config.frontendDir === null && config.corsOrigins.length === 0) {
@@ -73,8 +69,7 @@ export const startApp = async (config: AppConfig, logger: Logger): Promise<Runni
       http.setReady(false)
       clearInterval(sweeper)
       scheduler.cancelAll()
-      metricsServer.close()
-      await io.close()
+      await Promise.all([closeServer(metricsServer), io.close()])
     },
   }
 }
