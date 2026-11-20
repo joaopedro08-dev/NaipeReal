@@ -6,7 +6,9 @@ import { fileURLToPath } from "node:url"
 import { io } from "socket.io-client"
 import type { Socket } from "socket.io-client"
 import type { Ack, HintsDto, RoomStateDto, SeatDto } from "../src/adapters/socket/contract.js"
-import type { TurnAction } from "../src/domain/games/rouba-monte/turn-actions.js"
+import { gameCatalog } from "../src/main/container.js"
+import { canAct, chooseBotAction, tableOpensAt } from "./bot-strategy.js"
+import type { BotAction } from "./bot-strategy.js"
 import { percentile, readServerSample } from "./server-sample.js"
 import type { ServerSample } from "./server-sample.js"
 
@@ -20,8 +22,18 @@ const THINK_MS = Number(env["THINK_MS"] ?? 1000)
 const CONNECT_BATCH = Number(env["CONNECT_BATCH"] ?? 30)
 const SETTLE_SECONDS = Number(env["SETTLE_SECONDS"] ?? 10)
 const LABEL = env["LABEL"] ?? "run"
+const GAMES = (env["GAMES"] || gameCatalog.games.map((game) => game.id).join(","))
+  .split(",")
+  .map((gameId) => gameId.trim())
+  .filter((gameId) => gameId.length > 0)
 const SLO_BROADCAST_P95_MS = 1000
 const ACK_TIMEOUT_MS = 10_000
+
+interface GameRecord {
+  broadcastMs: number[]
+  commands: number
+  gamesFinished: number
+}
 
 interface Recorder {
   ackMs: number[]
@@ -30,6 +42,22 @@ interface Recorder {
   rejected: Record<string, number>
   gamesFinished: number
   stalledRooms: number
+  byGame: Record<string, GameRecord>
+}
+
+const unknownGame = (gameId: string): never => {
+  throw new Error(`Jogo desconhecido em GAMES: ${gameId}`)
+}
+
+const seatsFor = (gameId: string): number => {
+  const rules = gameCatalog.find(gameId) ?? unknownGame(gameId)
+  const fitting = rules.playerCounts.filter((count) => count <= PLAYERS_PER_ROOM)
+  return Math.max(...(fitting.length > 0 ? fitting : [Math.min(...rules.playerCounts)]))
+}
+
+const gameRecordOf = (recorder: Recorder, gameId: string): GameRecord => {
+  recorder.byGame[gameId] ??= { broadcastMs: [], commands: 0, gamesFinished: 0 }
+  return recorder.byGame[gameId]
 }
 
 const request = <T>(socket: Socket, event: string, payload?: unknown): Promise<Ack<T>> =>
@@ -46,12 +74,21 @@ const request = <T>(socket: Socket, event: string, payload?: unknown): Promise<A
 class Bot {
   state: RoomStateDto | null = null
   playerId = ""
+  private opensAt = 0
 
   constructor(readonly socket: Socket) {}
 
+  receive(state: RoomStateDto): void {
+    this.state = state
+    this.opensAt = tableOpensAt(state, Date.now())
+  }
+
   get myTurn(): boolean {
-    const game = this.state?.game
-    return this.state?.status === "playing" && game?.currentPlayerId === this.playerId
+    return (
+      this.state?.status === "playing" &&
+      Date.now() >= this.opensAt &&
+      canAct(this.state.game, this.playerId)
+    )
   }
 }
 
@@ -60,18 +97,25 @@ class BotRoom {
   private pending: { sentAt: number; baseVersion: number; waiting: Set<Bot> } | null = null
   private stopped = false
   private lastTurn = 0
+  private readonly record: GameRecord
 
-  constructor(private readonly recorder: Recorder) {}
+  constructor(
+    private readonly recorder: Recorder,
+    readonly gameId: string
+  ) {
+    this.record = gameRecordOf(recorder, gameId)
+  }
 
   async join(index: number): Promise<void> {
-    for (let seat = 0; seat < PLAYERS_PER_ROOM; seat++) {
+    const seats = seatsFor(this.gameId)
+    for (let seat = 0; seat < seats; seat++) {
       const bot = await this.connectBot()
       this.bots.push(bot)
       const nickname = `B${index}-${seat}`
       const first = this.bots[0] as Bot
       const ack =
         seat === 0
-          ? await request<SeatDto>(bot.socket, "room:create", { nickname })
+          ? await request<SeatDto>(bot.socket, "room:create", { nickname, gameId: this.gameId })
           : await request<SeatDto>(bot.socket, "room:join", {
               code: first.state?.code,
               nickname,
@@ -88,6 +132,7 @@ class BotRoom {
       const active = this.bots.find((bot) => bot.myTurn)
       if (host.state?.status === "finished") {
         this.recorder.gamesFinished++
+        this.record.gamesFinished++
         await sleep(THINK_MS)
         await this.command(host, "game:start")
         continue
@@ -114,7 +159,7 @@ class BotRoom {
     })
     const bot = new Bot(socket)
     socket.on("room:state", (state: RoomStateDto) => {
-      bot.state = state
+      bot.receive(state)
       this.markDelivered(bot, state)
     })
     await new Promise<void>((done, fail) => {
@@ -127,7 +172,9 @@ class BotRoom {
   private markDelivered(bot: Bot, state: RoomStateDto): void {
     const pending = this.pending
     if (!pending || state.version <= pending.baseVersion || !pending.waiting.delete(bot)) return
-    this.recorder.broadcastMs.push(performance.now() - pending.sentAt)
+    const elapsed = performance.now() - pending.sentAt
+    this.recorder.broadcastMs.push(elapsed)
+    this.record.broadcastMs.push(elapsed)
   }
 
   private async playTurn(bot: Bot): Promise<void> {
@@ -142,12 +189,10 @@ class BotRoom {
     }
   }
 
-  private async chooseAction(bot: Bot): Promise<TurnAction | null> {
+  private async chooseAction(bot: Bot): Promise<BotAction | null> {
     const hints = await this.command<HintsDto>(bot, "game:hints")
-    const action = hints?.kind === "rouba-monte" ? hints.plays[0]?.action : undefined
-    const game = bot.state?.game
-    if (!action || !game || !bot.myTurn) return null
-    return action
+    if (!bot.myTurn) return null
+    return chooseBotAction(bot.state?.game ?? null, hints)
   }
 
   private async command<T>(
@@ -167,6 +212,7 @@ class BotRoom {
     const ack = await request<T>(bot.socket, event, payload)
     this.recorder.ackMs.push(performance.now() - sentAt)
     this.recorder.commands++
+    this.record.commands++
     if (ack.ok) return ack.data
     this.recorder.rejected[ack.error.code] = (this.recorder.rejected[ack.error.code] ?? 0) + 1
     return null
@@ -186,6 +232,7 @@ const newRecorder = (): Recorder => ({
   rejected: {},
   gamesFinished: 0,
   stalledRooms: 0,
+  byGame: {},
 })
 
 const cpuPercent = (first: ServerSample, last: ServerSample, seconds: number): number =>
@@ -193,7 +240,10 @@ const cpuPercent = (first: ServerSample, last: ServerSample, seconds: number): n
 
 const runStep = async (roomCount: number) => {
   const recorder = newRecorder()
-  const rooms = Array.from({ length: roomCount }, () => new BotRoom(recorder))
+  const rooms = Array.from(
+    { length: roomCount },
+    (_, index) => new BotRoom(recorder, GAMES[index % GAMES.length] as string)
+  )
   const connectStartedAt = performance.now()
   for (let start = 0; start < rooms.length; start += CONNECT_BATCH) {
     await Promise.all(
@@ -211,6 +261,10 @@ const runStep = async (roomCount: number) => {
   recorder.ackMs.length = 0
   recorder.broadcastMs.length = 0
   recorder.commands = 0
+  for (const record of Object.values(recorder.byGame)) {
+    record.broadcastMs.length = 0
+    record.commands = 0
+  }
   const first = await readServerSample(METRICS)
   const startedAt = performance.now()
 
@@ -223,6 +277,17 @@ const runStep = async (roomCount: number) => {
   const commands = recorder.commands
   const rejected = { ...recorder.rejected }
   const gamesFinished = recorder.gamesFinished
+  const byGame = Object.fromEntries(
+    Object.entries(recorder.byGame).map(([gameId, record]) => [
+      gameId,
+      {
+        rooms: rooms.filter((room) => room.gameId === gameId).length,
+        commandsPerSecond: Number((record.commands / elapsed).toFixed(1)),
+        broadcastMs: summarize(record.broadcastMs),
+        gamesFinished: record.gamesFinished,
+      },
+    ])
+  )
   generatorLag.disable()
 
   rooms.forEach((room) => room.stop())
@@ -230,7 +295,8 @@ const runStep = async (roomCount: number) => {
 
   return {
     rooms: roomCount,
-    players: roomCount * PLAYERS_PER_ROOM,
+    players: rooms.reduce((total, room) => total + room.bots.length, 0),
+    games: GAMES,
     thinkMs: THINK_MS,
     connectSeconds: Number(connectSeconds.toFixed(1)),
     commandsPerSecond: Number((commands / elapsed).toFixed(1)),
@@ -241,6 +307,7 @@ const runStep = async (roomCount: number) => {
     broadcastMs: broadcast,
     sloBroadcastP95Ok: broadcast.p95 <= SLO_BROADCAST_P95_MS,
     gamesFinished,
+    byGame,
     rejected,
     server: {
       cpuPercent: cpuPercent(first, last, elapsed),
@@ -258,7 +325,9 @@ const runStep = async (roomCount: number) => {
 
 const results = []
 for (const roomCount of STEPS) {
-  console.log(`\n>> ${roomCount} salas × ${PLAYERS_PER_ROOM} jogadores, ${STEP_SECONDS}s`)
+  console.log(
+    `\n>> ${roomCount} salas de ${GAMES.join(", ")}, até ${PLAYERS_PER_ROOM} jogadores, ${STEP_SECONDS}s`
+  )
   const result = await runStep(roomCount)
   console.log(JSON.stringify(result))
   results.push(result)
@@ -285,5 +354,19 @@ console.table(
     "lag gerador": result.generator.eventLoopLagP99Ms,
     SLO: result.sloBroadcastP95Ok ? "ok" : "FALHOU",
   }))
+)
+
+console.table(
+  results.flatMap((result) =>
+    Object.entries(result.byGame).map(([gameId, game]) => ({
+      salas: result.rooms,
+      jogo: gameId,
+      "salas do jogo": game.rooms,
+      "cmd/s": game.commandsPerSecond,
+      "broadcast p95": game.broadcastMs.p95,
+      "broadcast p99": game.broadcastMs.p99,
+      partidas: game.gamesFinished,
+    }))
+  )
 )
 process.exit(0)
