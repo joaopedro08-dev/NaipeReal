@@ -2,10 +2,10 @@
 
 O backend roda no Render e o frontend na Vercel. Os dois leem o repositório no GitHub, então o código precisa estar commitado e enviado antes de começar.
 
-| Lado | Serviço | Configuração | Pasta |
-| --- | --- | --- | --- |
-| Backend | Render | `render.yaml` | raiz do repositório |
-| Frontend | Vercel | `frontend/vercel.json` | `frontend` |
+| Lado     | Serviço | Configuração           | Pasta               |
+| -------- | ------- | ---------------------- | ------------------- |
+| Backend  | Render  | `render.yaml`          | raiz do repositório |
+| Frontend | Vercel  | `frontend/vercel.json` | `frontend`          |
 
 Os comandos de implantação compilam `shared` antes de instalar o backend ou o
 frontend. Isso é necessário porque `shared/dist` não é versionado e os dois
@@ -28,15 +28,15 @@ Sem `NEXT_PUBLIC_SERVER_URL`, a publicação na Vercel falha de propósito, para
 
 Quem já tinha o Rouba Monte publicado precisa repetir a troca de nome fora do código. O endereço `.onrender.com` é fixado na criação do serviço e o `.vercel.app` vem do domínio cadastrado no projeto: renomear no painel não muda nenhum dos dois.
 
-| Onde | Antes | Depois |
-| --- | --- | --- |
-| GitHub | `joaopedro08-dev/RoubaMonte` | `joaopedro08-dev/NaipeReal` |
-| Serviço no Render | `rouba-monte-backend` | `naipe-real-backend` |
-| Projeto na Vercel | `rouba-monte.vercel.app` | `naipe-real`, com o domínio `naipe-real.vercel.app` |
-| Imagens Docker locais | `rouba-monte:local`, `rouba-monte-perf:local` | `naipe-real:local`, `naipe-real-perf:local` |
-| Painel do Grafana e job do Prometheus | `rouba-monte` | `naipe-real` |
-| Métricas | `roubamonte_*` | `naipe_real_*` |
-| Chaves no navegador | `rouba-monte:assento`, `rouba-monte:dicas` | `naipe-real:assento`, `naipe-real:dicas` |
+| Onde                                  | Antes                                         | Depois                                              |
+| ------------------------------------- | --------------------------------------------- | --------------------------------------------------- |
+| GitHub                                | `joaopedro08-dev/RoubaMonte`                  | `joaopedro08-dev/NaipeReal`                         |
+| Serviço no Render                     | `rouba-monte-backend`                         | `naipe-real-backend`                                |
+| Projeto na Vercel                     | `rouba-monte.vercel.app`                      | `naipe-real`, com o domínio `naipe-real.vercel.app` |
+| Imagens Docker locais                 | `rouba-monte:local`, `rouba-monte-perf:local` | `naipe-real:local`, `naipe-real-perf:local`         |
+| Painel do Grafana e job do Prometheus | `rouba-monte`                                 | `naipe-real`                                        |
+| Métricas                              | `roubamonte_*`                                | `naipe_real_*`                                      |
+| Chaves no navegador                   | `rouba-monte:assento`, `rouba-monte:dicas`    | `naipe-real:assento`, `naipe-real:dicas`            |
 
 1. **GitHub:** em **Settings > General**, renomeie o repositório para `NaipeReal`. O endereço antigo redireciona, e Render e Vercel continuam ligados ao repositório. No seu computador, aponte o Git para o novo nome:
 
@@ -53,12 +53,12 @@ Se você usa dashboards ou alertas próprios com as métricas antigas, troque o 
 
 ## Variáveis de produção
 
-| Variável | Onde | Valor |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SERVER_URL` | Vercel | Endereço do backend no Render |
-| `CORS_ORIGIN` | Render | Endereço do frontend. Para mais de um, separe por vírgula |
-| `PUBLIC_URL` | Render | Endereço do frontend |
-| `TRUST_PROXY`, `CLIENT_IP_HEADER`, `NODE_ENV`, `NODE_VERSION`, `NODE_OPTIONS`, `LOG_LEVEL` | Render | Já definidas no `render.yaml` |
+| Variável                                                                                   | Onde   | Valor                                                     |
+| ------------------------------------------------------------------------------------------ | ------ | --------------------------------------------------------- |
+| `NEXT_PUBLIC_SERVER_URL`                                                                   | Vercel | Endereço do backend no Render                             |
+| `CORS_ORIGIN`                                                                              | Render | Endereço do frontend. Para mais de um, separe por vírgula |
+| `PUBLIC_URL`                                                                               | Render | Endereço do frontend                                      |
+| `TRUST_PROXY`, `CLIENT_IP_HEADER`, `NODE_ENV`, `NODE_VERSION`, `NODE_OPTIONS`, `LOG_LEVEL` | Render | Já definidas no `render.yaml`                             |
 
 As demais variáveis estão no [README do backend](../backend/README.md#configuração). Nenhuma delas é secreta hoje.
 
@@ -66,7 +66,11 @@ As demais variáveis estão no [README do backend](../backend/README.md#configur
 
 `backend/.env` e `frontend/.env.local` servem só para desenvolvimento e ficam fora do Git e da imagem Docker. Render e Vercel não leem esses arquivos: os valores de produção ficam nos painéis. Para recriar os arquivos locais, copie os `.env.example` de cada pasta.
 
-Para desenvolver com os dois separados:
+Para desenvolver com os dois separados, compile `shared` uma vez e suba cada lado num terminal:
+
+```bash
+pnpm --dir shared install && pnpm --dir shared build
+```
 
 ```bash
 pnpm --dir backend dev
@@ -82,8 +86,14 @@ A tela abre em `http://localhost:3000` e o servidor fica em `http://localhost:40
 
 - O serviço adormece depois de 15 minutos sem tráfego, e a primeira conexão leva cerca de 1 minuto para acordá-lo. A tela fica em "Conectando ao servidor" e tenta de novo sozinha.
 - As salas ficam só na memória, então reinício, nova publicação ou adormecer encerra as partidas em andamento. Partidas com jogadores conectados mantêm o serviço acordado.
-- O plano tem 0,1 CPU. Nas [medições](performance.md), a meta de 1 s valeu até 10 salas com bots agressivos, com travadas curtas ocasionais. Para jogar com mais salas ao mesmo tempo, troque `plan` no `render.yaml`.
+- O plano tem 0,1 CPU. Nas [medições](performance.md) com os seis jogos, a meta de 1 s teve folga com 6 salas de bots agressivos e ficou no limite com 8 a 10, com travadas curtas ocasionais. Para jogar com mais salas ao mesmo tempo, troque `plan` no `render.yaml`.
 - Previews da Vercel têm endereços próprios e são recusados pelo servidor, a menos que entrem em `CORS_ORIGIN`.
+
+## Antes de publicar
+
+- Rode `pnpm audit --prod` no backend e no frontend. Desde 2026-11-20 o frontend usa `next@16.4.5`, que corrige as vulnerabilidades da 16.4.3 (cache do `use cache` e das fallback shells).
+- Rode `pnpm --dir backend test:simulation` quando a mudança mexer em regra de jogo.
+- Confira na Vercel que o build usa a versão do `pnpm-lock.yaml`: a instalação é com `--frozen-lockfile`.
 
 ## Serviço único
 

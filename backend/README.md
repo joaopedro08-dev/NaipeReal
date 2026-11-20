@@ -4,6 +4,12 @@ Servidor de jogo em Node.js 24, Socket.io e TypeScript. A arquitetura está em [
 
 ## Desenvolvimento
 
+O backend importa `@naipe-real/contracts` de `../shared/dist`. Compile o pacote antes da primeira instalação e sempre que mudar `shared/src`:
+
+```bash
+pnpm --dir ../shared install && pnpm --dir ../shared build
+```
+
 ```bash
 pnpm install
 ```
@@ -25,8 +31,18 @@ pnpm lint
 ```
 
 ```bash
+pnpm test
+```
+
+```bash
 pnpm test:coverage
 ```
+
+```bash
+pnpm test:simulation
+```
+
+A suíte de simulação joga 100 partidas por motor com sementes diferentes. Rode antes de publicar uma mudança de regra.
 
 ## Docker
 
@@ -49,28 +65,38 @@ MAX_CONNECTIONS_PER_IP=100000 MAX_ROOMS_PER_IP=100000 ROOM_CREATIONS_PER_MINUTE=
 ```
 
 ```bash
-ROOM_STEPS=10,50,100 LABEL=capacidade docker compose --profile perf run --rm --no-deps loadtest
+ROOM_STEPS=12,48,96 LABEL=capacidade docker compose --profile perf run --rm --no-deps loadtest
 ```
+
+As salas se revezam entre os seis jogos, cada uma com o maior número de jogadores aceito pelo jogo até `PLAYERS_PER_ROOM` (6 por padrão). Para medir só alguns jogos, use `GAMES`, como `GAMES=poker-texas-holdem,blackjack`. A estratégia dos bots fica em `perf/bot-strategy.ts`, e `test/perf/bot-strategy.test.ts` garante que eles terminam partidas de todos os jogos sem jogada recusada.
 
 ## Configuração
 
-| Variável | Padrão | Uso |
-| --- | --- | --- |
-| `PORT` | `3000` | Porta pública |
-| `METRICS_PORT` | `9464` | Porta interna do Prometheus |
-| `PUBLIC_URL` | `http://localhost:3000` | Base do link de convite |
-| `CORS_ORIGIN` | vazio | Origens permitidas com o frontend em outro endereço, separadas por vírgula |
-| `FRONTEND_DIR` | vazio | Pasta do Next.js servida pelo mesmo processo |
-| `TURN_SECONDS` | vazio | Substitui o tempo de turno de todos os jogos. Vazio usa o de cada jogo: 60 s no Rouba Monte (RN-17), 30 s no Truco (TR-RN-16), no Três Trincas (TT-RN-17) e no Poker (PK-RN-18) |
-| `MATCH_COUNTDOWN_SECONDS` | `3` | Contagem antes da partida. Jogadas só valem depois dela |
-| `TABLE_PAUSE_MS` | regra de cada jogo | Pausa da mesa depois de pedidos, rodadas e mãos no Truco, da última trinca no Três Trincas e de cada etapa da mesa e do showdown no Poker. `0` desliga as pausas (usado nos testes) |
-| `RECONNECT_GRACE_SECONDS` | `120` | Prazo de reconexão (RF-06) |
-| `EMPTY_ROOM_TTL_SECONDS` | `150` | Tempo até apagar sala sem ninguém conectado (RNF-07). Mantenha acima de `RECONNECT_GRACE_SECONDS`, senão a sala some antes do prazo de reconexão |
-| `MAX_ROOMS` | `10` | Limite de salas em memória. 10 é o que o plano gratuito sustentou com a meta de 1 s |
-| `TRUST_PROXY` | `false` | Lê o IP real em `X-Forwarded-For`. Ligue em Railway, Render ou atrás de qualquer proxy, senão todos os jogadores contam como um só IP |
-| `CLIENT_IP_HEADER` | `x-forwarded-for` | Cabeçalho lido primeiro com `TRUST_PROXY` ligado. Use um que o proxy sobrescreva, como `cf-connecting-ip` no Render, porque o cliente pode falsificar o `X-Forwarded-For` |
-| `MAX_CONNECTIONS_PER_IP` | `30` | Conexões simultâneas por IP |
-| `MAX_ROOMS_PER_IP` | `3` | Salas abertas ao mesmo tempo criadas pelo mesmo IP. A vaga volta quando a sala é apagada. Exige `TRUST_PROXY` ligado atrás de proxy, senão vale para todos os jogadores juntos |
-| `ROOM_CREATIONS_PER_MINUTE` | `10` | Salas criadas por minuto, por IP |
-| `ROOM_JOINS_PER_MINUTE` | `30` | Tentativas de entrar em sala por minuto, por IP. Dificulta adivinhar códigos |
-| `LOG_LEVEL` | `info` | Nível de log |
+| Variável                    | Padrão                  | Uso                                                                                                                                                                                                                                                                                                                           |
+| --------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                      | `3000`                  | Porta pública                                                                                                                                                                                                                                                                                                                 |
+| `METRICS_PORT`              | `9464`                  | Porta interna do Prometheus                                                                                                                                                                                                                                                                                                   |
+| `PUBLIC_URL`                | `http://localhost:3000` | Base do link de convite                                                                                                                                                                                                                                                                                                       |
+| `CORS_ORIGIN`               | vazio                   | Origens permitidas com o frontend em outro endereço, separadas por vírgula                                                                                                                                                                                                                                                    |
+| `FRONTEND_DIR`              | vazio                   | Pasta do Next.js servida pelo mesmo processo                                                                                                                                                                                                                                                                                  |
+| `TURN_SECONDS`              | vazio                   | Substitui o tempo de turno padrão de todos os jogos. Vazio usa o de cada jogo: 60 s no Rouba Monte (RN-17) e 30 s no Truco (TR-RN-16), no Três Trincas (TT-RN-17), no Poker (PK-RN-18), na Cacheta (CA-RN-16) e no Blackjack (BJ-RN-18). Quando o anfitrião escolhe 15, 30 ou 60 s no saguão, a escolha dele vale para a sala |
+| `MATCH_COUNTDOWN_SECONDS`   | `3`                     | Contagem antes da partida. Jogadas só valem depois dela                                                                                                                                                                                                                                                                       |
+| `TABLE_PAUSE_MS`            | regra de cada jogo      | Pausa da mesa depois de pedidos, rodadas e mãos no Truco, da última trinca no Três Trincas, de cada etapa da mesa e do showdown no Poker, da batida na Cacheta e da distribuição, da banca e do resultado no Blackjack. `0` desliga as pausas (usado nos testes)                                                              |
+| `RECONNECT_GRACE_SECONDS`   | `120`                   | Prazo de reconexão (RF-06)                                                                                                                                                                                                                                                                                                    |
+| `EMPTY_ROOM_TTL_SECONDS`    | `150`                   | Tempo até apagar sala sem ninguém conectado (RNF-07). Mantenha acima de `RECONNECT_GRACE_SECONDS`, senão a sala some antes do prazo de reconexão                                                                                                                                                                              |
+| `MAX_ROOMS`                 | `10`                    | Limite de salas em memória. Com os seis jogos, o plano gratuito (0,1 CPU) fica no limite da meta de 1 s em 10 salas e tem folga com 6; em 0,5 CPU, cerca de 96 salas                                                                                                                                                          |
+| `TRUST_PROXY`               | `false`                 | Lê o IP real nos cabeçalhos do proxy. Ligue em Railway, Render ou atrás de qualquer proxy, senão todos os jogadores contam como um só IP                                                                                                                                                                                      |
+| `CLIENT_IP_HEADER`          | `x-forwarded-for`       | Cabeçalho lido com `TRUST_PROXY` ligado. Prefira um que o proxy sobrescreva, como `cf-connecting-ip` no Render. Se ele faltar, ou se for o próprio `x-forwarded-for`, vale o último endereço do `X-Forwarded-For`, que é o adicionado pelo proxy mais próximo: os anteriores podem ser forjados pelo cliente                  |
+| `MAX_CONNECTIONS_PER_IP`    | `30`                    | Conexões simultâneas por IP                                                                                                                                                                                                                                                                                                   |
+| `MAX_ROOMS_PER_IP`          | `3`                     | Salas abertas ao mesmo tempo criadas pelo mesmo IP. A vaga volta quando a sala é apagada. Exige `TRUST_PROXY` ligado atrás de proxy, senão vale para todos os jogadores juntos                                                                                                                                                |
+| `ROOM_CREATIONS_PER_MINUTE` | `10`                    | Salas criadas por minuto, por IP                                                                                                                                                                                                                                                                                              |
+| `ROOM_JOINS_PER_MINUTE`     | `30`                    | Tentativas de entrar em sala por minuto, por IP. Dificulta adivinhar códigos                                                                                                                                                                                                                                                  |
+| `LOG_LEVEL`                 | `info`                  | Nível de log: `debug`, `info`, `warn`, `error` ou `silent`                                                                                                                                                                                                                                                                    |
+| `HOST`                      | `0.0.0.0`               | Endereço em que as portas escutam                                                                                                                                                                                                                                                                                             |
+| `SWEEP_INTERVAL_SECONDS`    | `5`                     | Intervalo da varredura que remove jogadores sem reconexão e salas vazias                                                                                                                                                                                                                                                      |
+
+## Operação
+
+- Se a porta estiver ocupada, o processo encerra com código 1 e registra `server failed to start`.
+- Em `SIGTERM` ou `SIGINT`, o servidor se marca como não pronto em `/readyz`, cancela os relógios, fecha as conexões e sai. Se o desligamento passar de 10 s, ele é forçado.
+- Erros não tratados são registrados no log. Uma exceção não capturada encerra o processo para o orquestrador reiniciá-lo.

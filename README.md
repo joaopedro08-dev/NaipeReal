@@ -2,25 +2,28 @@
 
 Site para jogar baralho online com os amigos, no PC ou no celular. Não há cadastro: uma pessoa cria a sala, escolhe o jogo e manda o código ou o link para os outros. Jogue em [naipe-real.vercel.app](https://naipe-real.vercel.app).
 
-| Jogo | Jogadores | Resumo |
-| --- | --- | --- |
-| Rouba Monte | 2 a 6 | Capture cartas da mesa e roube o monte dos adversários. Vence o maior monte. Turno de 60 s |
-| Truco Paulista | 2, 4 ou 6, em times | 40 cartas, manilha pela vira, truco, seis, nove e doze. Vence quem chega a 12 pontos. Jogada de 30 s |
-| Três Trincas | 2 a 4 | 52 cartas, 2 como coringa e o valor do vira morto. Compre, descarte e vença baixando 3 trincas primeiro. Vez de 30 s |
-| Poker Texas Hold'em | 2 a 6 | 52 cartas e 1000 fichas de mentira, sem limite de aposta e com potes paralelos. Blinds dobram a cada 10 mãos e vence quem ficar com todas as fichas. Vez de 30 s |
-| Cacheta | 2 a 4 | 2 baralhos (104 cartas), coringa pelo vira. Feche 9 cartas em trincas e sequências e bata: os outros perdem 1 ponto, ou 2 se for limpo. Vence o último com pontos. Vez de 30 s |
-| Blackjack | 1 a 6, inclusive sozinho | 52 cartas e 1000 fichas de mentira, todos contra a banca. Peça, pare, dobre ou divida; blackjack paga 3 para 2. Vence quem tiver mais fichas depois de 10 rodadas. Vez de 30 s |
+| Jogo                | Jogadores                | Resumo                                                                                                                                                                         |
+| ------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Rouba Monte         | 2 a 6                    | Capture cartas da mesa e roube o monte dos adversários. Vence o maior monte. Turno de 60 s                                                                                     |
+| Truco Paulista      | 2, 4 ou 6, em times      | 40 cartas, manilha pela vira, truco, seis, nove e doze. Vence quem chega a 12 pontos. Jogada de 30 s                                                                           |
+| Três Trincas        | 2 a 4                    | 52 cartas, 2 como coringa e o valor do vira morto. Compre, descarte e vença baixando 3 trincas primeiro. Vez de 30 s                                                           |
+| Poker Texas Hold'em | 2 a 6                    | 52 cartas e 1000 fichas de mentira, sem limite de aposta e com potes paralelos. Blinds dobram a cada 10 mãos e vence quem ficar com todas as fichas. Vez de 30 s               |
+| Cacheta             | 2 a 4                    | 2 baralhos (104 cartas), coringa pelo vira. Feche 9 cartas em trincas e sequências e bata: os outros perdem 1 ponto, ou 2 se for limpo. Vence o último com pontos. Vez de 30 s |
+| Blackjack           | 1 a 6, inclusive sozinho | 52 cartas e 1000 fichas de mentira, todos contra a banca. Peça, pare, dobre ou divida; blackjack paga 3 para 2. Vence quem tiver mais fichas depois de 10 rodadas. Vez de 30 s |
+
+O tempo da vez mostrado na tabela é o padrão de cada jogo. No saguão, o anfitrião pode trocá-lo para 15, 30 ou 60 s, ligar ou desligar as dicas, sortear o jogo e montar os times.
 
 Cada jogo é um módulo registrado num catálogo; a sala, o tempo real e o relógio são comuns. As regras completas ficam na página `/informacoes`.
 
 ## Estrutura
 
-| Pasta | Conteúdo |
-| --- | --- |
-| [`backend`](backend/README.md) | Servidor do jogo em Node.js 24, Socket.io e TypeScript. Guarda o estado em memória e confere cada jogada |
-| [`frontend`](frontend/README.md) | Interface em Next.js, shadcn/ui, framer-motion e GSAP. Mostra o estado que o servidor envia |
-| `infra` | Prometheus e Grafana para observar o serviço |
-| `docs` | Arquitetura, medições de desempenho e implantação |
+| Pasta                            | Conteúdo                                                                                                 |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [`backend`](backend/README.md)   | Servidor do jogo em Node.js 24, Socket.io e TypeScript. Guarda o estado em memória e confere cada jogada |
+| [`frontend`](frontend/README.md) | Interface em Next.js 16, shadcn/ui, framer-motion e GSAP. Mostra o estado que o servidor envia           |
+| `shared`                         | Pacote `@naipe-real/contracts`: esquemas Zod dos comandos, usados pelo backend e pelo frontend           |
+| `infra`                          | Prometheus e Grafana para observar o serviço                                                             |
+| `docs`                           | Arquitetura, medições de desempenho e implantação                                                        |
 
 ## Rodar localmente
 
@@ -30,7 +33,17 @@ O caminho mais simples precisa só do Docker. Um único serviço entrega a tela 
 docker compose up --build app
 ```
 
-Para desenvolver, instale as dependências com pnpm e copie os arquivos de exemplo de cada pasta:
+Para desenvolver, use Node.js 24 e pnpm 11. Compile primeiro o pacote `shared`, porque o backend e o frontend importam a saída compilada dele (`shared/dist` não é versionado):
+
+```bash
+pnpm --dir shared install
+```
+
+```bash
+pnpm --dir shared build
+```
+
+Depois copie os arquivos de exemplo e instale as dependências de cada pasta:
 
 ```bash
 cp backend/.env.example backend/.env
@@ -61,38 +74,42 @@ pnpm --dir frontend dev
 ## Verificação
 
 Os comandos do backend abaixo verificam os seis motores. Troque `backend` por
-`frontend` para verificar o typecheck, lint e testes do frontend:
+`frontend` para verificar o typecheck, lint e testes do frontend. A CI do GitHub roda
+os mesmos passos nas duas pastas a cada push na `main` e em cada pull request:
 
 ```bash
-npm --prefix backend run typecheck
+pnpm --dir backend typecheck
 ```
 
 ```bash
-npm --prefix backend run lint
+pnpm --dir backend lint
 ```
 
 ```bash
-npm --prefix backend test
+pnpm --dir backend test
 ```
 
 O teste normal usa 10 sementes por simulação. Antes de publicar, rode a suíte
 ampliada com 100 sementes por motor:
 
 ```bash
-npm --prefix backend run test:simulation
+pnpm --dir backend test:simulation
 ```
 
 Para medir a cobertura somente dos motores:
 
 ```bash
-npm --prefix backend run test:coverage:engines
+pnpm --dir backend test:coverage:engines
 ```
 
 Para validar os builds:
 
 ```bash
-npm --prefix backend run build
-npm --prefix frontend run build
+pnpm --dir backend build
+```
+
+```bash
+pnpm --dir frontend build
 ```
 
 Para validar o serviço completo no Docker:
@@ -109,7 +126,18 @@ O backend vai para o Render (`render.yaml`) e o frontend para a Vercel (`fronten
 
 - [Arquitetura do backend](docs/arquitetura-backend.md), com o contrato do Socket.io e as regras confirmadas
 - [Desempenho](docs/performance.md)
+- [Índice de requisitos](docs/requisitos.md), com os códigos RF, RN e RNF citados e o teste que verifica cada um
 - [Implantação](docs/implantacao.md)
+
+Para conferir vulnerabilidades conhecidas nas dependências de produção:
+
+```bash
+pnpm --dir backend audit --prod
+```
+
+```bash
+pnpm --dir frontend audit --prod
+```
 
 Para relatar uma falha, veja [SECURITY.md](SECURITY.md).
 

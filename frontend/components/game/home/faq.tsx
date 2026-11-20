@@ -17,7 +17,7 @@ const QUESTIONS = [
   {
     question: "Preciso criar uma conta?",
     answer:
-      "Não. Você escolhe um apelido e entra. O navegador guarda só o apelido e a chave para voltar à sala.",
+      "Não. Você escolhe um apelido e entra. O navegador guarda o apelido, a chave para voltar à sala e as suas preferências, só neste aparelho.",
   },
   {
     question: "Quantas pessoas podem jogar?",
@@ -33,6 +33,16 @@ const QUESTIONS = [
     question: "O que acontece se a minha conexão cair?",
     answer:
       "Abra o site de novo no mesmo navegador: você volta para a mesma sala e para a sua mão. Se ficar mais de 2 minutos fora, o jogo segue sem você.",
+  },
+  {
+    question: "Dá para mudar o tempo de cada jogada?",
+    answer:
+      "Sim. No saguão, o anfitrião escolhe 15, 30 ou 60 segundos por vez. Sem escolha, vale o tempo padrão do jogo.",
+  },
+  {
+    question: "Posso ajustar sons, animações e o tamanho das cartas?",
+    answer:
+      "Sim. No menu da partida, o painel de preferências liga os sons, reduz as animações, aumenta as cartas e decide se o código da sala aparece sem precisar revelar.",
   },
   {
     question: "As cartas dos outros jogadores ficam escondidas?",
