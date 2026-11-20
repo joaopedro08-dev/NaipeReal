@@ -41,14 +41,14 @@ export const describeConnection = (
   if (waitedLong) {
     return "Servidor acordando. A primeira conexão pode levar cerca de 1 minuto."
   }
-return connection === "connecting"
-  ? "Conectando ao servidor..."
-  : "Sem conexão com o servidor. Tentando de novo..."
+  return connection === "connecting"
+    ? "Conectando ao servidor..."
+    : "Sem conexão com o servidor. Tentando de novo..."
 }
 
 export const shouldShowWakeNotice = (
-connection: string,
-elapsedMs: number
+  connection: string,
+  elapsedMs: number
 ): boolean => connection !== "online" && elapsedMs >= LONG_WAIT_MS
 
 function ConnectionHint({ connection }: { connection: string }) {

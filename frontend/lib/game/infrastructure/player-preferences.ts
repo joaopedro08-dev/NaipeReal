@@ -1,6 +1,8 @@
+import { GAMES } from "@/lib/game/domain/catalog"
 import type { GameId } from "@/lib/game/domain/types"
 
 const STORAGE_KEY = "naipe-real:preferencias"
+export const PREFERENCES_EVENT = "naipe-real:preferences"
 
 export interface PlayerPreferences {
   readonly nickname: string
@@ -12,6 +14,8 @@ export interface PlayerPreferences {
   readonly cardSize: "normal" | "large"
 }
 
+export type PreferencesPatch = Partial<PlayerPreferences>
+
 const defaultPreferences: PlayerPreferences = {
   nickname: "",
   tutorialsSeen: {},
@@ -22,93 +26,91 @@ const defaultPreferences: PlayerPreferences = {
   cardSize: "normal",
 }
 
-const isPreferences = (value: unknown): value is PlayerPreferences =>
-  typeof value === "object" &&
-  value !== null &&
-  typeof (value as { nickname?: unknown }).nickname === "string"
+const KNOWN_GAMES = new Set<string>(GAMES.map((game) => game.id))
+
+const booleanOr = (value: unknown, fallback: boolean): boolean =>
+  typeof value === "boolean" ? value : fallback
+
+const tutorialsOf = (value: unknown): Partial<Record<GameId, true>> => {
+  if (typeof value !== "object" || value === null) return {}
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      ([gameId, seen]) => KNOWN_GAMES.has(gameId) && seen === true
+    )
+  ) as Partial<Record<GameId, true>>
+}
+
+const parsePreferences = (value: unknown): PlayerPreferences => {
+  if (typeof value !== "object" || value === null) return defaultPreferences
+  const stored = value as Record<string, unknown>
+  return {
+    nickname: typeof stored.nickname === "string" ? stored.nickname : "",
+    tutorialsSeen: tutorialsOf(stored.tutorialsSeen),
+    tutorialAutoOpen: booleanOr(
+      stored.tutorialAutoOpen,
+      defaultPreferences.tutorialAutoOpen
+    ),
+    showRoomCodeByDefault: booleanOr(
+      stored.showRoomCodeByDefault,
+      defaultPreferences.showRoomCodeByDefault
+    ),
+    soundsEnabled: booleanOr(
+      stored.soundsEnabled,
+      defaultPreferences.soundsEnabled
+    ),
+    reducedMotion: booleanOr(
+      stored.reducedMotion,
+      defaultPreferences.reducedMotion
+    ),
+    cardSize: stored.cardSize === "large" ? "large" : "normal",
+  }
+}
 
 export const loadPlayerPreferences = (): PlayerPreferences => {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY)
-    const parsed: unknown = stored ? JSON.parse(stored) : null
-    if (!isPreferences(parsed)) return defaultPreferences
-    const tutorialsSeen =
-      typeof parsed.tutorialsSeen === "object" && parsed.tutorialsSeen !== null
-        ? parsed.tutorialsSeen
-        : {}
-    return {
-      ...defaultPreferences,
-      nickname: parsed.nickname,
-      tutorialsSeen,
-      tutorialAutoOpen:
-        typeof parsed.tutorialAutoOpen === "boolean"
-          ? parsed.tutorialAutoOpen
-          : defaultPreferences.tutorialAutoOpen,
-      showRoomCodeByDefault:
-        typeof parsed.showRoomCodeByDefault === "boolean"
-          ? parsed.showRoomCodeByDefault
-          : defaultPreferences.showRoomCodeByDefault,
-      soundsEnabled:
-        typeof parsed.soundsEnabled === "boolean"
-          ? parsed.soundsEnabled
-          : defaultPreferences.soundsEnabled,
-      reducedMotion:
-        typeof parsed.reducedMotion === "boolean"
-          ? parsed.reducedMotion
-          : defaultPreferences.reducedMotion,
-      cardSize: parsed.cardSize === "large" ? "large" : defaultPreferences.cardSize,
-    }
+    return stored ? parsePreferences(JSON.parse(stored)) : defaultPreferences
   } catch {
     return defaultPreferences
   }
 }
 
-export const savePlayerPreferences = (
-  preferences: Pick<PlayerPreferences, "nickname"> &
-    Partial<Omit<PlayerPreferences, "nickname">>
-): void => {
+export const savePlayerPreferences = (patch: PreferencesPatch): void => {
   try {
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ ...defaultPreferences, ...preferences })
+      JSON.stringify({ ...loadPlayerPreferences(), ...patch })
     )
   } catch {
     return
   }
 }
 
+export const updatePlayerPreferences = (patch: PreferencesPatch): void => {
+  savePlayerPreferences(patch)
+  window.dispatchEvent(new Event(PREFERENCES_EVENT))
+}
+
+export const subscribeToPreferences = (listener: () => void): (() => void) => {
+  window.addEventListener("storage", listener)
+  window.addEventListener(PREFERENCES_EVENT, listener)
+  return () => {
+    window.removeEventListener("storage", listener)
+    window.removeEventListener(PREFERENCES_EVENT, listener)
+  }
+}
+
 export const hasSeenTutorial = (gameId: GameId): boolean =>
   loadPlayerPreferences().tutorialsSeen[gameId] === true
 
-export const markTutorialSeen = (gameId: GameId): void => {
-  const preferences = loadPlayerPreferences()
+export const markTutorialSeen = (gameId: GameId): void =>
   savePlayerPreferences({
-    ...preferences,
-    tutorialsSeen: { ...preferences.tutorialsSeen, [gameId]: true },
+    tutorialsSeen: { ...loadPlayerPreferences().tutorialsSeen, [gameId]: true },
   })
-}
 
-export const markAllTutorialsSeen = (): void => {
-  const preferences = loadPlayerPreferences()
-  const gameIds: readonly GameId[] = [
-    "rouba-monte",
-    "truco-paulista",
-    "tres-trincas",
-    "poker-texas-holdem",
-    "cacheta",
-    "blackjack",
-  ]
+export const markAllTutorialsSeen = (): void =>
   savePlayerPreferences({
-    ...preferences,
     tutorialsSeen: Object.fromEntries(
-      gameIds.map((gameId) => [gameId, true])
+      GAMES.map((game) => [game.id, true])
     ) as Partial<Record<GameId, true>>,
   })
-}
-
-export const updatePlayerPreferences = (
-  patch: Partial<Omit<PlayerPreferences, "nickname">>
-): void => {
-  savePlayerPreferences({ ...loadPlayerPreferences(), ...patch })
-  window.dispatchEvent(new Event("naipe-real:preferences"))
-}

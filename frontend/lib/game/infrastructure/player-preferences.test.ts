@@ -67,6 +67,28 @@ describe("preferências do jogador", () => {
     expect(hasSeenTutorial("blackjack")).toBe(true)
   })
 
+  it("salvar o apelido não apaga as outras preferências", () => {
+    updatePlayerPreferences({ soundsEnabled: true, cardSize: "large" })
+    markTutorialSeen("truco-paulista")
+    savePlayerPreferences({ nickname: "Bia" })
+
+    const preferences = loadPlayerPreferences()
+    expect(preferences.nickname).toBe("Bia")
+    expect(preferences.soundsEnabled).toBe(true)
+    expect(preferences.cardSize).toBe("large")
+    expect(hasSeenTutorial("truco-paulista")).toBe(true)
+  })
+
+  it("descarta tutoriais de jogos desconhecidos", () => {
+    storage.set(
+      "naipe-real:preferencias",
+      JSON.stringify({
+        tutorialsSeen: { cacheta: true, xadrez: true, poker: 1 },
+      })
+    )
+    expect(loadPlayerPreferences().tutorialsSeen).toEqual({ cacheta: true })
+  })
+
   it("persiste a preferência de mostrar o código", () => {
     updatePlayerPreferences({ showRoomCodeByDefault: true })
     expect(loadPlayerPreferences().showRoomCodeByDefault).toBe(true)
