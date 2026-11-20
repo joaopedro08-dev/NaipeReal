@@ -1,0 +1,598 @@
+{
+  "label": "catalogo-05cpu",
+  "target": "http://app:3000",
+  "results": [
+    {
+      "rooms": 12,
+      "players": 64,
+      "games": [
+        "rouba-monte",
+        "truco-paulista",
+        "tres-trincas",
+        "poker-texas-holdem",
+        "cacheta",
+        "blackjack"
+      ],
+      "thinkMs": 1000,
+      "connectSeconds": 1.6,
+      "commandsPerSecond": 17.4,
+      "stateMessagesPerSecond": 55.4,
+      "ackMs": {
+        "count": 784,
+        "p50": 3.71,
+        "p95": 26.43,
+        "p99": 107.22,
+        "max": 216.15
+      },
+      "broadcastMs": {
+        "count": 1613,
+        "p50": 3.24,
+        "p95": 19.14,
+        "p99": 70.43,
+        "max": 215.98
+      },
+      "sloBroadcastP95Ok": true,
+      "gamesFinished": 6,
+      "byGame": {
+        "rouba-monte": {
+          "rooms": 2,
+          "commandsPerSecond": 3.6,
+          "broadcastMs": {
+            "count": 405,
+            "p50": 3.42,
+            "p95": 11.67,
+            "p99": 25.88,
+            "max": 32.46
+          },
+          "gamesFinished": 2
+        },
+        "truco-paulista": {
+          "rooms": 2,
+          "commandsPerSecond": 2.5,
+          "broadcastMs": {
+            "count": 280,
+            "p50": 3.54,
+            "p95": 22.32,
+            "p99": 214.98,
+            "max": 215.98
+          },
+          "gamesFinished": 1
+        },
+        "tres-trincas": {
+          "rooms": 2,
+          "commandsPerSecond": 3.8,
+          "broadcastMs": {
+            "count": 255,
+            "p50": 2.51,
+            "p95": 8.57,
+            "p99": 67.85,
+            "max": 68.3
+          },
+          "gamesFinished": 1
+        },
+        "poker-texas-holdem": {
+          "rooms": 2,
+          "commandsPerSecond": 2.4,
+          "broadcastMs": {
+            "count": 265,
+            "p50": 3.79,
+            "p95": 59.31,
+            "p99": 105.89,
+            "max": 106.92
+          },
+          "gamesFinished": 2
+        },
+        "cacheta": {
+          "rooms": 2,
+          "commandsPerSecond": 3.6,
+          "broadcastMs": {
+            "count": 243,
+            "p50": 3.25,
+            "p95": 19.25,
+            "p99": 74.53,
+            "max": 75.08
+          },
+          "gamesFinished": 0
+        },
+        "blackjack": {
+          "rooms": 2,
+          "commandsPerSecond": 1.5,
+          "broadcastMs": {
+            "count": 165,
+            "p50": 2.68,
+            "p95": 51.84,
+            "p99": 97.53,
+            "max": 98.03
+          },
+          "gamesFinished": 0
+        }
+      },
+      "rejected": {},
+      "server": {
+        "cpuPercent": 11.2,
+        "rssMb": 155.5,
+        "heapUsedMb": 46.6,
+        "idleRssMb": 137.3,
+        "eventLoopLagP99Ms": 27.18,
+        "connections": 64
+      },
+      "generator": {
+        "eventLoopLagP99Ms": 15.93
+      }
+    },
+    {
+      "rooms": 48,
+      "players": 256,
+      "games": [
+        "rouba-monte",
+        "truco-paulista",
+        "tres-trincas",
+        "poker-texas-holdem",
+        "cacheta",
+        "blackjack"
+      ],
+      "thinkMs": 1000,
+      "connectSeconds": 3.3,
+      "commandsPerSecond": 48.6,
+      "stateMessagesPerSecond": 149.9,
+      "ackMs": {
+        "count": 2187,
+        "p50": 8.52,
+        "p95": 971.92,
+        "p99": 5711.48,
+        "max": 6513.76
+      },
+      "broadcastMs": {
+        "count": 4549,
+        "p50": 6.43,
+        "p95": 804.66,
+        "p99": 5932.52,
+        "max": 6514.11
+      },
+      "sloBroadcastP95Ok": true,
+      "gamesFinished": 9,
+      "byGame": {
+        "rouba-monte": {
+          "rooms": 8,
+          "commandsPerSecond": 10.1,
+          "broadcastMs": {
+            "count": 1125,
+            "p50": 7.93,
+            "p95": 879.23,
+            "p99": 5773.76,
+            "max": 6110.4
+          },
+          "gamesFinished": 3
+        },
+        "truco-paulista": {
+          "rooms": 8,
+          "commandsPerSecond": 6.8,
+          "broadcastMs": {
+            "count": 770,
+            "p50": 5.02,
+            "p95": 1017.41,
+            "p99": 6513.06,
+            "max": 6514.11
+          },
+          "gamesFinished": 0
+        },
+        "tres-trincas": {
+          "rooms": 8,
+          "commandsPerSecond": 10.6,
+          "broadcastMs": {
+            "count": 717,
+            "p50": 5.8,
+            "p95": 804.5,
+            "p99": 5915.15,
+            "max": 6303.39
+          },
+          "gamesFinished": 0
+        },
+        "poker-texas-holdem": {
+          "rooms": 8,
+          "commandsPerSecond": 7.2,
+          "broadcastMs": {
+            "count": 790,
+            "p50": 8.15,
+            "p95": 2131.81,
+            "p99": 5710.15,
+            "max": 6105.66
+          },
+          "gamesFinished": 6
+        },
+        "cacheta": {
+          "rooms": 8,
+          "commandsPerSecond": 9.3,
+          "broadcastMs": {
+            "count": 627,
+            "p50": 8.09,
+            "p95": 954.23,
+            "p99": 5919.06,
+            "max": 6115.54
+          },
+          "gamesFinished": 0
+        },
+        "blackjack": {
+          "rooms": 8,
+          "commandsPerSecond": 4.6,
+          "broadcastMs": {
+            "count": 520,
+            "p50": 4.23,
+            "p95": 202.87,
+            "p99": 423.45,
+            "max": 427.5
+          },
+          "gamesFinished": 0
+        }
+      },
+      "rejected": {},
+      "server": {
+        "cpuPercent": 32,
+        "rssMb": 161.1,
+        "heapUsedMb": 48.7,
+        "idleRssMb": 158.1,
+        "eventLoopLagP99Ms": 214.83,
+        "connections": 256
+      },
+      "generator": {
+        "eventLoopLagP99Ms": 49.61
+      }
+    },
+    {
+      "rooms": 96,
+      "players": 512,
+      "games": [
+        "rouba-monte",
+        "truco-paulista",
+        "tres-trincas",
+        "poker-texas-holdem",
+        "cacheta",
+        "blackjack"
+      ],
+      "thinkMs": 1000,
+      "connectSeconds": 20.7,
+      "commandsPerSecond": 58.9,
+      "stateMessagesPerSecond": 184.5,
+      "ackMs": {
+        "count": 2729,
+        "p50": 435.73,
+        "p95": 3939.77,
+        "p99": 8584.27,
+        "max": 10001.85
+      },
+      "broadcastMs": {
+        "count": 5815,
+        "p50": 323.46,
+        "p95": 2497.99,
+        "p99": 6567.98,
+        "max": 7255.94
+      },
+      "sloBroadcastP95Ok": false,
+      "gamesFinished": 5,
+      "byGame": {
+        "rouba-monte": {
+          "rooms": 16,
+          "commandsPerSecond": 11.6,
+          "broadcastMs": {
+            "count": 1345,
+            "p50": 326.09,
+            "p95": 2540.34,
+            "p99": 6568.99,
+            "max": 6618.69
+          },
+          "gamesFinished": 0
+        },
+        "truco-paulista": {
+          "rooms": 16,
+          "commandsPerSecond": 9.2,
+          "broadcastMs": {
+            "count": 1065,
+            "p50": 315.49,
+            "p95": 2541.29,
+            "p99": 6660.52,
+            "max": 7255.94
+          },
+          "gamesFinished": 0
+        },
+        "tres-trincas": {
+          "rooms": 16,
+          "commandsPerSecond": 11.6,
+          "broadcastMs": {
+            "count": 810,
+            "p50": 333.46,
+            "p95": 2099.7,
+            "p99": 4737.82,
+            "max": 7190.66
+          },
+          "gamesFinished": 0
+        },
+        "poker-texas-holdem": {
+          "rooms": 16,
+          "commandsPerSecond": 9.5,
+          "broadcastMs": {
+            "count": 1095,
+            "p50": 316.91,
+            "p95": 2398.17,
+            "p99": 6513.11,
+            "max": 6567.45
+          },
+          "gamesFinished": 5
+        },
+        "cacheta": {
+          "rooms": 16,
+          "commandsPerSecond": 10.7,
+          "broadcastMs": {
+            "count": 750,
+            "p50": 328.84,
+            "p95": 3396.15,
+            "p99": 6614.61,
+            "max": 7190.77
+          },
+          "gamesFinished": 0
+        },
+        "blackjack": {
+          "rooms": 16,
+          "commandsPerSecond": 6.4,
+          "broadcastMs": {
+            "count": 750,
+            "p50": 314.65,
+            "p95": 2477.62,
+            "p99": 3099.41,
+            "max": 3417.94
+          },
+          "gamesFinished": 0
+        }
+      },
+      "rejected": {
+        "ACK_TIMEOUT": 4
+      },
+      "server": {
+        "cpuPercent": 44.2,
+        "rssMb": 171.9,
+        "heapUsedMb": 55.7,
+        "idleRssMb": 162.6,
+        "eventLoopLagP99Ms": 3539.99,
+        "connections": 512
+      },
+      "generator": {
+        "eventLoopLagP99Ms": 74.78
+      }
+    },
+    {
+      "rooms": 144,
+      "players": 768,
+      "games": [
+        "rouba-monte",
+        "truco-paulista",
+        "tres-trincas",
+        "poker-texas-holdem",
+        "cacheta",
+        "blackjack"
+      ],
+      "thinkMs": 1000,
+      "connectSeconds": 8.1,
+      "commandsPerSecond": 138.3,
+      "stateMessagesPerSecond": 425.7,
+      "ackMs": {
+        "count": 6237,
+        "p50": 277.38,
+        "p95": 1002.6,
+        "p99": 1430.45,
+        "max": 1904.48
+      },
+      "broadcastMs": {
+        "count": 13117,
+        "p50": 190.32,
+        "p95": 892.5,
+        "p99": 1132.08,
+        "max": 1412.15
+      },
+      "sloBroadcastP95Ok": true,
+      "gamesFinished": 25,
+      "byGame": {
+        "rouba-monte": {
+          "rooms": 24,
+          "commandsPerSecond": 27.9,
+          "broadcastMs": {
+            "count": 3140,
+            "p50": 196.66,
+            "p95": 877.05,
+            "p99": 1071.52,
+            "max": 1400.72
+          },
+          "gamesFinished": 7
+        },
+        "truco-paulista": {
+          "rooms": 24,
+          "commandsPerSecond": 20.7,
+          "broadcastMs": {
+            "count": 2335,
+            "p50": 183.36,
+            "p95": 788.78,
+            "p99": 1225.16,
+            "max": 1288.63
+          },
+          "gamesFinished": 1
+        },
+        "tres-trincas": {
+          "rooms": 24,
+          "commandsPerSecond": 28.7,
+          "broadcastMs": {
+            "count": 1947,
+            "p50": 186.5,
+            "p95": 895.22,
+            "p99": 1214.03,
+            "max": 1412.05
+          },
+          "gamesFinished": 0
+        },
+        "poker-texas-holdem": {
+          "rooms": 24,
+          "commandsPerSecond": 21.5,
+          "broadcastMs": {
+            "count": 2390,
+            "p50": 186.5,
+            "p95": 847.46,
+            "p99": 1123.22,
+            "max": 1279.44
+          },
+          "gamesFinished": 17
+        },
+        "cacheta": {
+          "rooms": 24,
+          "commandsPerSecond": 25.7,
+          "broadcastMs": {
+            "count": 1740,
+            "p50": 183.35,
+            "p95": 900.33,
+            "p99": 1067.2,
+            "max": 1412.15
+          },
+          "gamesFinished": 0
+        },
+        "blackjack": {
+          "rooms": 24,
+          "commandsPerSecond": 13.8,
+          "broadcastMs": {
+            "count": 1565,
+            "p50": 205.14,
+            "p95": 911.79,
+            "p99": 1280.49,
+            "max": 1286.53
+          },
+          "gamesFinished": 0
+        }
+      },
+      "rejected": {},
+      "server": {
+        "cpuPercent": 47.9,
+        "rssMb": 183.6,
+        "heapUsedMb": 54.6,
+        "idleRssMb": 172.6,
+        "eventLoopLagP99Ms": 1004.01,
+        "connections": 768
+      },
+      "generator": {
+        "eventLoopLagP99Ms": 30.23
+      }
+    },
+    {
+      "rooms": 192,
+      "players": 1024,
+      "games": [
+        "rouba-monte",
+        "truco-paulista",
+        "tres-trincas",
+        "poker-texas-holdem",
+        "cacheta",
+        "blackjack"
+      ],
+      "thinkMs": 1000,
+      "connectSeconds": 9.5,
+      "commandsPerSecond": 114.1,
+      "stateMessagesPerSecond": 348.9,
+      "ackMs": {
+        "count": 5690,
+        "p50": 781,
+        "p95": 2923.83,
+        "p99": 4035.78,
+        "max": 4746.16
+      },
+      "broadcastMs": {
+        "count": 12029,
+        "p50": 602.32,
+        "p95": 2078.95,
+        "p99": 3710.33,
+        "max": 4037
+      },
+      "sloBroadcastP95Ok": false,
+      "gamesFinished": 6,
+      "byGame": {
+        "rouba-monte": {
+          "rooms": 32,
+          "commandsPerSecond": 21.8,
+          "broadcastMs": {
+            "count": 2705,
+            "p50": 581.52,
+            "p95": 1904.09,
+            "p99": 2881.75,
+            "max": 4035.9
+          },
+          "gamesFinished": 0
+        },
+        "truco-paulista": {
+          "rooms": 32,
+          "commandsPerSecond": 17.7,
+          "broadcastMs": {
+            "count": 2195,
+            "p50": 598.53,
+            "p95": 1857.25,
+            "p99": 3839.4,
+            "max": 4002.37
+          },
+          "gamesFinished": 0
+        },
+        "tres-trincas": {
+          "rooms": 32,
+          "commandsPerSecond": 22.3,
+          "broadcastMs": {
+            "count": 1665,
+            "p50": 604.57,
+            "p95": 2422.88,
+            "p99": 3964.6,
+            "max": 4037
+          },
+          "gamesFinished": 0
+        },
+        "poker-texas-holdem": {
+          "rooms": 32,
+          "commandsPerSecond": 18.5,
+          "broadcastMs": {
+            "count": 2295,
+            "p50": 586.01,
+            "p95": 2091.43,
+            "p99": 2923.11,
+            "max": 3711.03
+          },
+          "gamesFinished": 6
+        },
+        "cacheta": {
+          "rooms": 32,
+          "commandsPerSecond": 21.1,
+          "broadcastMs": {
+            "count": 1584,
+            "p50": 598.74,
+            "p95": 2284.75,
+            "p99": 3963.54,
+            "max": 4030.61
+          },
+          "gamesFinished": 0
+        },
+        "blackjack": {
+          "rooms": 32,
+          "commandsPerSecond": 12.6,
+          "broadcastMs": {
+            "count": 1585,
+            "p50": 677.35,
+            "p95": 1908.76,
+            "p99": 3951.48,
+            "max": 4010.07
+          },
+          "gamesFinished": 0
+        }
+      },
+      "rejected": {},
+      "server": {
+        "cpuPercent": 47.3,
+        "rssMb": 191.6,
+        "heapUsedMb": 62.1,
+        "idleRssMb": 183.8,
+        "eventLoopLagP99Ms": 3017.8,
+        "connections": 1024
+      },
+      "generator": {
+        "eventLoopLagP99Ms": 45.71
+      }
+    }
+  ]
+}

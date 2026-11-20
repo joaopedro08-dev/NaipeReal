@@ -8,6 +8,10 @@ export const withLocalDeadline = (
     serverTime === null ? null : serverTime - room.serverNow + localNow
   return {
     ...room,
+    players: room.players.map((player) => ({
+      ...player,
+      reconnectDeadlineAt: toLocal(player.reconnectDeadlineAt ?? null),
+    })),
     turnDeadlineAt: toLocal(room.turnDeadlineAt),
     matchStartsAt: toLocal(room.matchStartsAt),
     pausedUntil: toLocal(room.pausedUntil),

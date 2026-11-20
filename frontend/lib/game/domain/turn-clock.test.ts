@@ -25,6 +25,21 @@ describe("prazo do turno no relógio do aparelho", () => {
     expect(local.turnDeadlineAt).toBe(445_000)
   })
 
+  it("leva o prazo de reconexão dos jogadores para o relógio do aparelho", () => {
+    const base = buildRoom()
+    const [first, ...others] = base.players
+    const room = {
+      ...base,
+      serverNow: 1_000_000,
+      players: [
+        { ...first!, connected: false, reconnectDeadlineAt: 1_090_000 },
+        ...others,
+      ],
+    }
+    const local = withLocalDeadline(room, 200_000)
+    expect(local.players[0]?.reconnectDeadlineAt).toBe(290_000)
+  })
+
   it("não inventa prazo quando não há turno correndo", () => {
     const room = { ...buildRoom(), turnDeadlineAt: null, matchStartsAt: null }
     const local = withLocalDeadline(room, 500)

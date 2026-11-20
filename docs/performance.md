@@ -1,6 +1,38 @@
 # Naipe Real: performance e capacidade
 
-Medido em 2026-11-03. Um servidor de 0,5 CPU e 512 MB segura 200 salas com 6 jogadores (20 vezes a meta da RNF-06), com cada ação chegando a todos em 711 ms no p95. A meta de 1 s estoura entre 200 e 400 salas.
+Medido de novo em 2026-11-20 com os seis jogos. Um servidor de 0,5 CPU e 512 MB atende a meta de 1 s no p95 até cerca de 96 salas misturando os jogos (512 jogadores), metade do que segurava só com o Rouba Monte. No plano gratuito do Render (0,1 CPU), a meta fica no limite em 10 salas.
+
+As seções seguintes, de 2026-11-03 a 2026-11-05, mediram só o Rouba Monte e ficam como histórico.
+
+## Catálogo completo (2026-11-20)
+
+Os bots se revezam entre os seis jogos: cada sala recebe o maior número de jogadores aceito pelo jogo até 6 (4 no Três Trincas e na Cacheta). Eles jogam pelas dicas e respeitam a contagem inicial e as pausas da mesa, então nenhum comando foi recusado por regra. Mesma máquina, mesmos 45 s por etapa depois de 10 s de estabilização.
+
+### 0,5 CPU
+
+| Salas | Jogadores | Comandos/s | Broadcast p95 | Broadcast p99 | CPU | RSS    | Meta de 1 s |
+| ----- | --------- | ---------- | ------------- | ------------- | --- | ------ | ----------- |
+| 12    | 64        | 17,4       | 19 ms         | 70 ms         | 11% | 156 MB | Atende      |
+| 48    | 256       | 66,5       | 291 ms        | 576 ms        | 30% | 164 MB | Atende      |
+| 96    | 512       | 89,7       | 752 ms        | 1.368 ms      | 43% | 174 MB | Atende      |
+| 144   | 768       | 124,2      | 1.007 ms      | 1.796 ms      | 48% | 185 MB | No limite   |
+| 192   | 1.024     | 114,1      | 2.079 ms      | 3.710 ms      | 47% | 192 MB | Falha       |
+
+Foram três rodadas. A tabela mostra a mais estável de cada etapa; `catalogo-05cpu.json` e `catalogo-05cpu-repeticao.json` guardam as duas últimas. A primeira, sobrescrita, ainda tinha bots jogando durante a contagem e as pausas, e atendeu até 96 salas. Em uma rodada, 48 e 96 salas tiveram picos de 6 s no p99 e 96 salas passou de 1 s no p95, enquanto 144 salas atendeu em outra: perto do limite, uma pausa da VM do Docker basta para virar o resultado.
+
+Por jogo, com 96 salas, o p95 ficou entre 631 ms (Poker) e 982 ms (Três Trincas), e todos ficaram abaixo de 1 s. Blackjack, Truco e Poker mandam menos comandos por sala (de 9,5 a 13,9 por segundo, somando as 16 salas de cada jogo, contra 16,5 a 18,4 dos outros), porque parte da partida anda em passos automáticos do servidor ou em pausas da mesa. Cada passo automático também envia um estado para todos.
+
+### 0,1 CPU (plano gratuito do Render)
+
+| Salas | Jogadores | Comandos/s | Broadcast p95  | Broadcast p99    | Meta de 1 s        |
+| ----- | --------- | ---------- | -------------- | ---------------- | ------------------ |
+| 6     | 32        | 7,2        | 388 ms         | 506 ms           | Atende             |
+| 8     | 44        | 8,0        | 995 ms         | 1.202 ms         | No limite          |
+| 10    | 54        | 9,5 e 10,2 | 1.273 e 796 ms | 4.502 e 1.401 ms | Falhou uma de duas |
+| 12    | 64        | 9,0        | 1.194 ms       | 2.182 ms         | Falha              |
+| 18    | 96        | 12,4       | 2.201 ms       | 3.293 ms         | Falha              |
+
+O `render.yaml` continua com `MAX_ROOMS=10`. Com a mistura de jogos, 10 salas de bots agressivos ficam no limite da meta; 6 salas têm folga. Pessoas jogam mais devagar que os bots, que agem a cada 1 s, então o uso real tende a ficar abaixo disso. Em 2026-11-20 o limite foi mantido em 10, aceitando picos acima de 1 s com todas as mesas cheias de jogadores rápidos. Baixe para 6 ou 8 se a prioridade passar a ser nunca passar de 1 s, ou troque o plano para aumentar.
 
 ## Como foi medido
 
@@ -16,28 +48,28 @@ Limites desta medição:
 
 ## RNF-06: 10 salas com 6 jogadores em 0,5 CPU
 
-| Métrica | Resultado | Meta |
-| --- | --- | --- |
-| Broadcast p50 | 3,8 ms | |
-| Broadcast p95 | 16 ms | até 1 s |
-| Broadcast p99 | 29 ms | |
-| Maior broadcast | 45 ms | |
-| CPU do processo | 8,6% de 1 núcleo | |
-| Memória (RSS) | 142 MB de 512 MB | |
+| Métrica         | Resultado        | Meta    |
+| --------------- | ---------------- | ------- |
+| Broadcast p50   | 3,8 ms           |         |
+| Broadcast p95   | 16 ms            | até 1 s |
+| Broadcast p99   | 29 ms            |         |
+| Maior broadcast | 45 ms            |         |
+| CPU do processo | 8,6% de 1 núcleo |         |
+| Memória (RSS)   | 142 MB de 512 MB |         |
 
 ## Capacidade
 
 Cada etapa teve 45 s de medição, depois de 10 s de estabilização.
 
-| CPU | Salas | Jogadores | Mensagens/s | Broadcast p50 | Broadcast p95 | Broadcast p99 | CPU | RSS | Meta de 1 s |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0,5 | 50 | 300 | 257 | 3 ms | 59 ms | 195 ms | 25% | 155 MB | Atende |
-| 0,5 | 100 | 600 | 496 | 6 ms | 158 ms | 303 ms | 36% | 166 MB | Atende |
-| 0,5 | 200 | 1.200 | 737 | 101 ms | 711 ms | 1.100 ms | 48% | 184 MB | Atende |
-| 0,5 | 400 | 2.400 | 743 | 607 ms | 2.411 ms | 2.801 ms | 49% | 215 MB | Falha |
-| 1,0 | 100 | 600 | 522 | 3 ms | 40 ms | 108 ms | 37% | 164 MB | Atende |
-| 1,0 | 200 | 1.200 | 996 | 6 ms | 127 ms | 380 ms | 62% | 186 MB | Atende |
-| 1,0 | 400 | 2.400 | 1.746 | 31 ms | 357 ms | 593 ms | 88% | 224 MB | Atende |
+| CPU | Salas | Jogadores | Mensagens/s | Broadcast p50 | Broadcast p95 | Broadcast p99 | CPU | RSS    | Meta de 1 s |
+| --- | ----- | --------- | ----------- | ------------- | ------------- | ------------- | --- | ------ | ----------- |
+| 0,5 | 50    | 300       | 257         | 3 ms          | 59 ms         | 195 ms        | 25% | 155 MB | Atende      |
+| 0,5 | 100   | 600       | 496         | 6 ms          | 158 ms        | 303 ms        | 36% | 166 MB | Atende      |
+| 0,5 | 200   | 1.200     | 737         | 101 ms        | 711 ms        | 1.100 ms      | 48% | 184 MB | Atende      |
+| 0,5 | 400   | 2.400     | 743         | 607 ms        | 2.411 ms      | 2.801 ms      | 49% | 215 MB | Falha       |
+| 1,0 | 100   | 600       | 522         | 3 ms          | 40 ms         | 108 ms        | 37% | 164 MB | Atende      |
+| 1,0 | 200   | 1.200     | 996         | 6 ms          | 127 ms        | 380 ms        | 62% | 186 MB | Atende      |
+| 1,0 | 400   | 2.400     | 1.746       | 31 ms         | 357 ms        | 593 ms        | 88% | 224 MB | Atende      |
 
 - **Gargalo:** é a CPU. A memória fica folgada, com cerca de 185 KB por sala ocupada.
 - **Escala vertical:** com 1 CPU a vazão chegou a 1.746 mensagens por segundo, contra o teto de cerca de 740 com 0,5 CPU.
@@ -48,15 +80,15 @@ Cada etapa teve 45 s de medição, depois de 10 s de estabilização.
 Medido em 2026-11-04 com a mesma imagem, limitada a 0,1 CPU, em etapas de 45 s. A meta de 1 s no p95 vale até 10 salas com estes bots.
 
 | Salas | Jogadores | Comandos/s | Broadcast p95 | Broadcast p99 | Meta de 1 s |
-| --- | --- | --- | --- | --- | --- |
-| 5 | 30 | 8,3 | 696 ms | 2.698 ms | Atende |
-| 10 | 60 | 14,7 | 591 ms | 1.897 ms | Atende |
-| 20 | 120 | 22,9 | 1.309 ms | 2.504 ms | Falha |
-| 40 | 240 | 11,5 | 6.056 ms | 9.385 ms | Falha |
+| ----- | --------- | ---------- | ------------- | ------------- | ----------- |
+| 5     | 30        | 8,3        | 696 ms        | 2.698 ms      | Atende      |
+| 10    | 60        | 14,7       | 591 ms        | 1.897 ms      | Atende      |
+| 20    | 120       | 22,9       | 1.309 ms      | 2.504 ms      | Falha       |
+| 40    | 240       | 11,5       | 6.056 ms      | 9.385 ms      | Falha       |
 
 - **Picos:** mesmo com poucas salas, o p99 passa de 1 s. Com 0,1 CPU, o processo fica pausado boa parte do tempo, então espere travadas curtas ocasionais.
 - **Bots contra pessoas:** cada sala de bots gerou de 1 a 2 comandos por segundo. Pessoas jogam bem mais devagar, então o limite real deve ser maior, mas isso é estimativa, não medição.
-- **Limite no Render:** o `render.yaml` usa `MAX_ROOMS=10`, o maior número medido que atendeu à meta de 1 s no p95. Decidido em 2026-11-04. Suba o limite só depois de medir no próprio Render ou trocar de plano.
+- **Limite no Render:** o `render.yaml` usa `MAX_ROOMS=10`, o maior número medido que atendeu à meta de 1 s no p95 só com o Rouba Monte. Decidido em 2026-11-04 e revisto em 2026-11-20 na seção [Catálogo completo](#catálogo-completo-2026-11-20).
 - **Medição conservadora:** a imagem inclui o Next.js no mesmo processo, e no Render o servidor roda sem ele.
 
 ## Partidas completas pela rede
@@ -69,14 +101,14 @@ As 58 recusas `GAME_NOT_RUNNING` vêm dos bots pedindo dica logo depois do fim d
 
 Medido em 1 thread na máquina de desenvolvimento, sem limite de CPU.
 
-| Operação | Operações/s | Tempo |
-| --- | --- | --- |
-| Visão de um jogador | 1.564.813 | 0,6 µs |
-| Aplicar uma ação | 531.185 | 1,9 µs |
-| Embaralhar e distribuir | 53.145 | 19 µs |
-| Calcular dicas | 53.080 | 19 µs |
-| Montar e serializar estado para 6 jogadores | 12.950 | 77 µs |
-| Partida inteira | 584 | 1,7 ms |
+| Operação                                    | Operações/s | Tempo  |
+| ------------------------------------------- | ----------- | ------ |
+| Visão de um jogador                         | 1.564.813   | 0,6 µs |
+| Aplicar uma ação                            | 531.185     | 1,9 µs |
+| Embaralhar e distribuir                     | 53.145      | 19 µs  |
+| Calcular dicas                              | 53.080      | 19 µs  |
+| Montar e serializar estado para 6 jogadores | 12.950      | 77 µs  |
+| Partida inteira                             | 584         | 1,7 ms |
 
 Medido de novo em 2026-11-05, com as regras do monte. As dicas ficaram 2 vezes mais rápidas e a partida inteira 2,5 vezes, porque cada turno tem uma jogada só e não há mais reciclagem da mesa.
 
@@ -90,19 +122,19 @@ Medido em 2026-11-04 com `MAX_ROOMS=10`, no build de produção. Com o prazo ant
 
 Com a correção:
 
-| Situação | Vaga liberada |
-| --- | --- |
-| O último jogador clica em "Sair da sala" | Na hora |
-| Todos fecham a aba | Entre 146 s e 157 s depois |
+| Situação                                 | Vaga liberada              |
+| ---------------------------------------- | -------------------------- |
+| O último jogador clica em "Sair da sala" | Na hora                    |
+| Todos fecham a aba                       | Entre 146 s e 157 s depois |
 
 O prazo de 150 s fica acima dos 120 s de reconexão, então quem cai ainda consegue voltar. Para quem mantém salas abertas de propósito, `MAX_ROOMS_PER_IP=3` limita cada IP a 3 das 10 vagas. Quem usa vários IPs ainda consegue ocupar todas.
 
 ## O que as medições encontraram
 
-| Achado | Efeito | Ação |
-| --- | --- | --- |
-| O healthcheck abria um processo Node a cada 15 s, consumindo a cota de 0,5 CPU e chegando a marcar o contêiner como `unhealthy` | Em 10 salas, o p99 caiu de 323 ms para 29 ms. Em 200 salas, o p95 caiu de 1.056 ms para 711 ms e passou a atender a meta | Trocado por `wget` |
-| Quem criava ou entrava na sala não recebia o primeiro estado | Tela sem dados até a próxima atualização | Corrigido e coberto por teste |
+| Achado                                                                                                                          | Efeito                                                                                                                   | Ação                          |
+| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| O healthcheck abria um processo Node a cada 15 s, consumindo a cota de 0,5 CPU e chegando a marcar o contêiner como `unhealthy` | Em 10 salas, o p99 caiu de 323 ms para 29 ms. Em 200 salas, o p95 caiu de 1.056 ms para 711 ms e passou a atender a meta | Trocado por `wget`            |
+| Quem criava ou entrava na sala não recebia o primeiro estado                                                                    | Tela sem dados até a próxima atualização                                                                                 | Corrigido e coberto por teste |
 
 Na comparação do healthcheck, cada lado teve uma única rodada, então parte da diferença pode ser ruído.
 
@@ -116,9 +148,9 @@ Uma rodada de partidas às 20:39 teve 10 timeouts de ack e paradas de 5,8 s e 8,
 
 Medido em 2026-11-04 com a tela do jogo pronta.
 
-| Métrica | Resultado |
-| --- | --- |
-| Transferência total | 348 KB |
+| Métrica                                    | Resultado           |
+| ------------------------------------------ | ------------------- |
+| Transferência total                        | 348 KB              |
 | Estimativa em 4G (1,6 Mbps, 150 ms de RTT) | 2,38 s, meta de 3 s |
 
 A estimativa é um cálculo a partir do tamanho transferido, não uma medição em rede 4G real. As animações ficam em um arquivo de cerca de 137 KB, baixado em segundo plano depois que a página abre.
@@ -129,11 +161,11 @@ A imagem tem 1,08 GB, dos quais 600 MB são o `node_modules` do frontend. O pró
 
 ## Plano de escala
 
-| Situação | Ação |
-| --- | --- |
-| Até 200 salas simultâneas | 0,5 CPU e 512 MB bastam |
-| Até 400 salas simultâneas | Subir para 1 CPU |
-| Acima de 400 salas | Dividir por código de sala: várias instâncias, com o proxy encaminhando cada código sempre para a mesma |
+| Situação                  | Ação                                                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Até 200 salas simultâneas | 0,5 CPU e 512 MB bastam                                                                                 |
+| Até 400 salas simultâneas | Subir para 1 CPU                                                                                        |
+| Acima de 400 salas        | Dividir por código de sala: várias instâncias, com o proxy encaminhando cada código sempre para a mesma |
 
 A divisão entre instâncias não foi construída porque o escopo é de amigos e a RNF-06 pede 10 salas. O estado em memória continua sendo um limite aceito pelo documento de requisitos: reiniciar o servidor perde as partidas.
 
@@ -148,11 +180,11 @@ ROOM_STEPS=10 STEP_SECONDS=60 LABEL=rnf06 docker compose --profile perf run --rm
 ```
 
 ```bash
-ROOM_STEPS=50,100,200,400 STEP_SECONDS=45 LABEL=capacidade docker compose --profile perf run --rm --no-deps loadtest
+ROOM_STEPS=12,48,96,144,192 STEP_SECONDS=45 LABEL=catalogo-05cpu docker compose --profile perf run --rm --no-deps loadtest
 ```
 
 ```bash
 APP_CPUS=1 MAX_ROOMS=1000 MAX_ROOMS_PER_IP=100000 MAX_CONNECTIONS_PER_IP=100000 ROOM_CREATIONS_PER_MINUTE=100000 ROOM_JOINS_PER_MINUTE=100000 docker compose up -d app
 ```
 
-Os resultados ficam em `backend/perf/results`. Para acompanhar ao vivo, suba o perfil `observability` e abra o painel em `localhost:3001`.
+Use `APP_PORT=3100` no `docker compose up` se a porta 3000 já estiver ocupada pelo `next dev`. Para medir só alguns jogos, defina `GAMES`, como `GAMES=poker-texas-holdem,blackjack`. Os resultados ficam em `backend/perf/results`, com um resumo por jogo em `byGame`. Para acompanhar ao vivo, suba o perfil `observability` e abra o painel em `localhost:3001`.

@@ -72,6 +72,8 @@ services:
       STEP_SECONDS: ${STEP_SECONDS:-60}
       THINK_MS: ${THINK_MS:-1000}
       LABEL: ${LABEL:-run}
+      GAMES: ${GAMES:-}
+      SETTLE_SECONDS: ${SETTLE_SECONDS:-10}
     volumes:
       - ./backend/perf/results:/app/backend/perf/results
     depends_on:

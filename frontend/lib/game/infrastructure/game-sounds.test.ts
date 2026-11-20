@@ -42,9 +42,17 @@ describe("sons da partida", () => {
   it.each(["card", "turn", "finish"] as const)(
     "cria áudio para o evento %s quando ligado",
     (sound) => {
-      savePlayerPreferences({ nickname: "Ana", soundsEnabled: true })
+      savePlayerPreferences({ soundsEnabled: true })
       playGameSound(sound)
       expect(window.AudioContext).toHaveBeenCalledOnce()
     }
   )
+
+  it("reaproveita o mesmo contexto de áudio entre os sons", () => {
+    savePlayerPreferences({ soundsEnabled: true })
+    playGameSound("card")
+    playGameSound("turn")
+    playGameSound("finish")
+    expect(window.AudioContext).toHaveBeenCalledOnce()
+  })
 })

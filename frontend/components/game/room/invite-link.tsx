@@ -14,11 +14,12 @@ const subscribeToNothing = () => () => undefined
 const canShareNatively = () => "share" in navigator
 const cannotShareOnServer = () => false
 
-type CopyFeedback = "copied" | "selected" | null
+type CopyFeedback = "copied" | "selected" | "blocked" | null
 
 const FEEDBACK_TEXT: Readonly<Record<Exclude<CopyFeedback, null>, string>> = {
   copied: "Link copiado! Mande para os amigos.",
   selected: "Link selecionado. Copie e mande para os amigos.",
+  blocked: "Não deu para copiar. Mostre o código e copie o link.",
 }
 
 export function InviteLink({
@@ -47,6 +48,7 @@ export function InviteLink({
       await navigator.clipboard.writeText(url)
       setFeedback("copied")
     } catch {
+      if (!visible) return setFeedback("blocked")
       field.current?.select()
       setFeedback("selected")
     }

@@ -95,7 +95,7 @@ const GENERAL_STEPS = [
   {
     icon: DoorOpen,
     title: "Comece a partida",
-    text: "Quando todos entrarem, o anfitrião inicia. Cada pessoa joga pelo próprio aparelho.",
+    text: "Antes de iniciar, o anfitrião pode sortear o jogo, escolher 15, 30 ou 60 s por vez e ligar ou desligar as dicas. Cada pessoa joga pelo próprio aparelho.",
   },
 ] as const
 
@@ -108,17 +108,17 @@ const SYSTEM_INFO = [
   {
     icon: RefreshCw,
     title: "Se a conexão cair",
-    text: "Abra o jogo de novo no mesmo navegador para voltar à sua sala e à sua mão.",
+    text: "Abra o jogo de novo no mesmo navegador para voltar à sua sala e à sua mão. Você tem 2 minutos. Se quem cair for o anfitrião, o próximo jogador conectado assume o comando até ele voltar.",
   },
   {
     icon: Lightbulb,
     title: "Dicas",
-    text: "No Rouba Monte, o jogo destaca a melhor jogada e as outras possíveis. No Truco, mostra a força das suas cartas e sugere o que jogar ou responder. No Três Trincas, organiza a mão por valor, destaca as trincas prontas e marca as cartas mortas. No Poker, mostra o seu jogo atual e quantas cartas ainda o melhoram. Na Cacheta, junta os jogos prontos na mão, avisa quando dá para bater e sugere o descarte. No Blackjack, sugere pedir, parar, dobrar ou dividir pela estratégia básica. Você pode desligar as dicas no menu da partida.",
+    text: "No Rouba Monte, o jogo destaca a melhor jogada e as outras possíveis. No Truco, mostra a força das suas cartas e sugere o que jogar ou responder. No Três Trincas, organiza a mão por valor, destaca as trincas prontas e marca as cartas mortas. No Poker, mostra o seu jogo atual e quantas cartas ainda o melhoram. Na Cacheta, junta os jogos prontos na mão, avisa quando dá para bater e sugere o descarte. No Blackjack, sugere pedir, parar, dobrar ou dividir pela estratégia básica. Você pode desligar as dicas no menu da partida, e o anfitrião pode desligá-las para a sala toda.",
   },
   {
     icon: ShieldCheck,
     title: "Seus dados",
-    text: "O navegador guarda seu apelido e a chave para voltar à sala. As salas ficam só na memória do servidor, sem banco de dados, e se perdem quando ele reinicia.",
+    text: "O navegador guarda o apelido, a chave para voltar à sala e as suas preferências, só neste aparelho. As salas ficam só na memória do servidor, sem banco de dados, e se perdem quando ele reinicia.",
   },
 ] as const
 
@@ -222,7 +222,9 @@ function GameRules({ game }: { game: GameInfo }) {
             <GameFact icon={Users}>{describePlayerCounts(game)}</GameFact>
             <GameFact icon={Swords}>{game.mode}</GameFact>
             <GameFact icon={Layers}>{game.deck}</GameFact>
-            <GameFact icon={Clock}>{game.turnSeconds} s por jogada</GameFact>
+            <GameFact icon={Clock}>
+              {game.turnSeconds} s por jogada, ajustável
+            </GameFact>
           </div>
         </div>
         <div aria-hidden className="flex shrink-0 -space-x-6 self-center pr-2">
@@ -317,8 +319,8 @@ export default function InformationPage() {
               </h1>
               <p className="max-w-2xl text-base/relaxed text-felt-muted sm:text-lg">
                 Tudo o que você precisa para sentar à mesa: como começar, as
-                regras de cada jogo em blocos curtos e como o Naipe Real funciona
-                por trás.
+                regras de cada jogo em blocos curtos e como o Naipe Real
+                funciona por trás.
               </p>
             </div>
             <nav aria-label="Ir para as regras de um jogo">

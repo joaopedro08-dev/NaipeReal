@@ -19,6 +19,7 @@ import { LeaveRoomButton } from "@/components/game/room/leave-button"
 import { LobbyTable } from "@/components/game/room/lobby-table"
 import { RoomTicket } from "@/components/game/room/room-ticket"
 import { TeamBoard } from "@/components/game/room/team-board"
+import { TurnDurationSetting } from "@/components/game/room/turn-duration-setting"
 import { useRoomCommands } from "@/components/game/room/use-room-commands"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -228,32 +229,14 @@ export function LobbyScreen({
                 busy={busy}
                 onChange={commands.allowHints}
               />
-              {viewerIsHost && (
-                <section className="flex flex-col gap-2">
-                  <h2 className="font-heading text-sm font-semibold">
-                    Tempo da vez
-                  </h2>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[15, 30, 60].map((seconds) => (
-                      <GameButton
-                        key={seconds}
-                        variant={
-                          room.turnDurationSeconds === seconds
-                            ? "default"
-                            : "outline"
-                        }
-                        disabled={busy}
-                        onClick={() =>
-                          commands.setTurnDuration(seconds as 15 | 30 | 60)
-                        }
-                        className="min-h-11"
-                      >
-                        {seconds}s
-                      </GameButton>
-                    ))}
-                  </div>
-                </section>
-              )}
+              <Separator />
+              <TurnDurationSetting
+                chosen={room.turnDurationSeconds}
+                durationMs={room.turnDurationMs}
+                editable={viewerIsHost}
+                busy={busy}
+                onChange={commands.setTurnDuration}
+              />
               {room.teams && (
                 <>
                   <Separator />

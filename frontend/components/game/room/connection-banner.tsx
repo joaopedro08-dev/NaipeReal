@@ -2,66 +2,95 @@
 
 import { useEffect, useState } from "react"
 import { AnimatePresence, m } from "framer-motion"
-import { WifiOff } from "lucide-react"
+import { UserRoundX, WifiOff } from "lucide-react"
 
 import { GameButton } from "@/components/game/game-button"
 import { useGame } from "@/hooks/use-game"
+import type { ConnectionStatus } from "@/lib/game/application/game-session"
+import type { RoomPlayer } from "@/lib/game/domain/types"
 import { gameSession } from "@/lib/game/session"
-
-const secondsUntil = (deadline: number | null): number | null => {
-  if (deadline === null) return null
-  return Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
-}
+import { cn } from "@/lib/utils"
 
 export const connectionMessage = (
-  connection: string,
+  connection: ConnectionStatus,
   restoring: boolean
-): string =>
-  connection === "replaced"
-    ? "Esta sala foi aberta em outra aba ou aparelho."
-    : restoring
-      ? "Reconectando..."
-      : "Sem conexão. Tentando voltar para a sala..."
+): string | null => {
+  if (connection === "replaced") {
+    return "Esta sala foi aberta em outra aba ou aparelho."
+  }
+  if (restoring) return "Reconectando..."
+  if (connection === "online") return null
+  return "Sem conexão. Tentando voltar para a sala..."
+}
+
+export const awayMessage = (nicknames: readonly string[]): string | null => {
+  if (nicknames.length === 0) return null
+  if (nicknames.length === 1) return `${nicknames[0]} caiu da mesa.`
+  const last = nicknames.at(-1)
+  return `${nicknames.slice(0, -1).join(", ")} e ${last} caíram da mesa.`
+}
+
+export const secondsUntil = (deadline: number | null, now: number) =>
+  deadline === null ? null : Math.max(0, Math.ceil((deadline - now) / 1000))
+
+const nearestDeadline = (players: readonly RoomPlayer[]): number | null => {
+  const deadlines = players
+    .map((player) => player.reconnectDeadlineAt ?? null)
+    .filter((deadline): deadline is number => deadline !== null)
+  return deadlines.length > 0 ? Math.min(...deadlines) : null
+}
+
+const useNow = (active: boolean): number => {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!active) return
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [active])
+  return now
+}
 
 export function ConnectionBanner() {
   const { connection, restoring, room } = useGame()
-  const [, refresh] = useState(0)
-  const disconnected = room?.players.filter((player) => !player.connected) ?? []
-  const visible = connection !== "online" || restoring || disconnected.length > 0
+  const away = room?.players.filter((player) => !player.connected) ?? []
+  const now = useNow(away.length > 0)
+  const ownProblem = connectionMessage(connection, restoring)
+  const othersAway = awayMessage(away.map((player) => player.nickname))
+  const seconds = secondsUntil(nearestDeadline(away), now)
   const replaced = connection === "replaced"
-
-  useEffect(() => {
-    if (disconnected.length === 0) return
-    const timer = window.setInterval(() => refresh((value) => value + 1), 1000)
-    return () => window.clearInterval(timer)
-  }, [disconnected.length])
+  const visible = ownProblem !== null || othersAway !== null
+  const Icon = ownProblem ? WifiOff : UserRoundX
 
   return (
     <AnimatePresence>
       {visible && (
         <m.div
-          role="status"
           initial={{ y: "-100%" }}
           animate={{ y: 0 }}
           exit={{ y: "-100%" }}
-          className="pointer-events-none fixed inset-x-0 top-0 z-40 flex min-h-11 flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-refusal px-3 py-1.5 text-sm font-medium text-refusal-foreground sm:px-4"
+          className={cn(
+            "pointer-events-none fixed inset-x-0 top-0 z-40 flex min-h-11 flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-1.5 text-sm font-medium shadow-lg sm:px-4",
+            ownProblem
+              ? "bg-refusal text-refusal-foreground"
+              : "bg-felt-deep/95 text-felt-foreground ring-1 ring-gold/40 backdrop-blur"
+          )}
         >
-          <WifiOff aria-hidden className="size-4 shrink-0" />
-          <span className="min-w-0 max-w-full text-center break-words">
-            {connectionMessage(connection, restoring)}
-            {disconnected.length > 0 &&
-              ` ${disconnected.map((player) => player.nickname).join(", ")} aguardando reconexão.`}
-            {disconnected.length > 0 &&
-              (() => {
-                const deadlines = disconnected
-                  .map((player) => secondsUntil(player.reconnectDeadlineAt ?? null))
-                  .filter((seconds): seconds is number => seconds !== null)
-                const seconds = deadlines.length > 0 ? Math.min(...deadlines) : null
-                return seconds === null
-                  ? ""
-                  : ` Restam ${seconds} s para remover.`
-              })()}
+          <Icon aria-hidden className="size-4 shrink-0" />
+          <span
+            role="status"
+            className="max-w-full min-w-0 text-center break-words"
+          >
+            {ownProblem ?? othersAway}
+            {ownProblem && othersAway && ` ${othersAway}`}
           </span>
+          {seconds !== null && (
+            <span
+              aria-hidden
+              className="rounded-full bg-black/20 px-2 py-0.5 font-mono text-xs tabular-nums"
+            >
+              {seconds > 0 ? `sai em ${seconds}s` : "saindo..."}
+            </span>
+          )}
           {replaced && (
             <GameButton
               tone="gold"

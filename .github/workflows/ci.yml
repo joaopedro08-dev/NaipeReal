@@ -31,5 +31,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
+      - name: Formatação da documentação
+        run: pnpm exec prettier --check README.md ${{ matrix.project == 'backend' && '../README.md ../SECURITY.md "../docs/*.md"' || '' }}
       - run: pnpm test
       - run: pnpm build
