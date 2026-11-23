@@ -1,4 +1,5 @@
 import type { SeatStore } from "@/lib/game/application/ports"
+import { isValidRoomCode } from "@/lib/game/domain/room-entry"
 import type { Seat } from "@/lib/game/domain/types"
 
 const STORAGE_KEY = "naipe-real:assento"
@@ -8,6 +9,7 @@ export const SEAT_BOOT_SCRIPT = `try{if(localStorage.getItem("${STORAGE_KEY}"))d
 const isSeat = (value: unknown): value is Seat => {
   if (typeof value !== "object" || value === null) return false
   const seat = value as Record<string, unknown>
+  if (typeof seat.code !== "string" || !isValidRoomCode(seat.code)) return false
   return [
     seat.code,
     seat.nickname,

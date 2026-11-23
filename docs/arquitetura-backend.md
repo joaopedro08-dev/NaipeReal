@@ -181,7 +181,7 @@ O documento de requisitos do projeto não está neste repositório; os códigos 
 
 - Mensagem de até 4 KB, com esquema estrito por comando.
 - Até 20 comandos por segundo por conexão, com rajada de 40.
-- Até 30 conexões simultâneas, 10 salas novas por minuto, 30 tentativas de entrar por minuto e 3 salas abertas ao mesmo tempo por IP. Atrás de proxy, ligue `TRUST_PROXY`; sem um cabeçalho confiável, vale o último endereço do `X-Forwarded-For`.
+- Até 30 conexões simultâneas, 10 salas novas por minuto, 30 tentativas de entrar ou voltar a uma sala por minuto e 3 salas abertas ao mesmo tempo por IP. A conexão conta desde o handshake, mesmo sem entrar no namespace, e cai se não entrar em 10 s. Cada conexão abre um único socket: um segundo pedido de entrada no namespace é recusado. Atrás de proxy, ligue `TRUST_PROXY`; sem um cabeçalho confiável, vale o último endereço do `X-Forwarded-For`.
 - Os limites por IP guardam até 10 mil endereços. Acima disso, saem os usados há mais tempo, e quem já esgotou a cota continua bloqueado.
 - A chave de volta tem 192 bits aleatórios e é comparada em tempo constante.
 - Respostas JSON levam `Cache-Control: no-store` e `X-Content-Type-Options: nosniff`.

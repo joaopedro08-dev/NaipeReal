@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
-import { io } from "socket.io-client"
+import { io, Manager } from "socket.io-client"
 import type { Socket } from "socket.io-client"
 import type {
   Ack,
@@ -17,6 +17,8 @@ import type { RunningApp } from "../../src/main/app.js"
 import { loadConfig } from "../../src/main/config.js"
 
 const silentLogger = { info: () => undefined, error: () => undefined }
+const CONNECT_PACKET = "0"
+const CONNECT_ERROR_PACKET = "4"
 
 let app: RunningApp
 let url: string
@@ -428,6 +430,99 @@ describe("partida pela rede", () => {
     expect(await tryCode()).toBe("RATE_LIMITED")
 
     await limited.stop()
+  })
+
+  it("reconectar divide o limite de entradas e não serve para adivinhar códigos", async () => {
+    const limited = await startApp(
+      loadConfig({
+        PORT: "0",
+        METRICS_PORT: "0",
+        LOG_LEVEL: "silent",
+        NODE_ENV: "test",
+        ROOM_JOINS_PER_MINUTE: "2",
+      }),
+      silentLogger
+    )
+    const guesser = io(`http://127.0.0.1:${limited.port}`, {
+      transports: ["websocket"],
+      forceNew: true,
+      reconnection: false,
+    })
+    opened.push(guesser)
+    await new Promise((resolve) => guesser.once("connect", () => resolve(null)))
+    const tryReconnect = () =>
+      expectErrorCode(
+        request(guesser, "room:reconnect", {
+          code: "ZZZZZZ",
+          nickname: "Eva",
+          reconnectToken: "x".repeat(32),
+        })
+      )
+
+    expect(await tryReconnect()).toBe("ROOM_NOT_FOUND")
+    expect(
+      await expectErrorCode(request(guesser, "room:join", { code: "ZZZZZZ", nickname: "Eva" }))
+    ).toBe("ROOM_NOT_FOUND")
+    expect(await tryReconnect()).toBe("RATE_LIMITED")
+
+    await limited.stop()
+  })
+
+  it("conta no limite por IP a conexão que nunca entra no namespace", async () => {
+    const limited = await startApp(
+      loadConfig({
+        PORT: "0",
+        METRICS_PORT: "0",
+        LOG_LEVEL: "silent",
+        NODE_ENV: "test",
+        MAX_CONNECTIONS_PER_IP: "1",
+      }),
+      silentLogger
+    )
+    const limitedUrl = `http://127.0.0.1:${limited.port}`
+    const idle = new Manager(limitedUrl, {
+      transports: ["websocket"],
+      reconnection: false,
+      autoConnect: false,
+    })
+    await new Promise<void>((resolve, reject) =>
+      idle.open((failure) => (failure ? reject(failure) : resolve()))
+    )
+    const late = io(limitedUrl, { transports: ["websocket"], forceNew: true, reconnection: false })
+    opened.push(late)
+    const accepted = await new Promise((resolve) => {
+      late.once("connect", () => resolve(true))
+      late.once("connect_error", () => resolve(false))
+    })
+
+    expect(accepted).toBe(false)
+    idle.engine.close()
+    await limited.stop()
+  })
+
+  it("recusa abrir um segundo socket na mesma conexão", async () => {
+    const raw = new Manager(url, {
+      transports: ["websocket"],
+      reconnection: false,
+      autoConnect: false,
+    })
+    await new Promise<void>((resolve, reject) =>
+      raw.open((failure) => (failure ? reject(failure) : resolve()))
+    )
+    const answers: string[] = []
+    const answered = new Promise<void>((resolve) => {
+      raw.engine.on("message", (data) => {
+        answers.push(String(data))
+        if (answers.length === 2) resolve()
+      })
+    })
+    raw.engine.send(CONNECT_PACKET)
+    raw.engine.send(CONNECT_PACKET)
+    await answered
+
+    expect(answers[0]?.startsWith(CONNECT_PACKET)).toBe(true)
+    expect(answers[1]?.startsWith(CONNECT_ERROR_PACKET)).toBe(true)
+    raw.engine.close()
   })
 
   it("limita as salas abertas por IP e devolve a vaga quando alguém sai", async () => {

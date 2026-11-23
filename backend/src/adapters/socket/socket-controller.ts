@@ -94,7 +94,7 @@ type Dispatched<T> =
 
 export class SocketController {
   private readonly roomCreations: AddressRateLimiter
-  private readonly roomJoins: AddressRateLimiter
+  private readonly roomEntries: AddressRateLimiter
   private readonly roomQuota: AddressRoomQuota
 
   constructor(
@@ -108,7 +108,7 @@ export class SocketController {
     const limiterOf = (perMinute: number) =>
       new AddressRateLimiter(perMinute, perMinute / 60, clock)
     this.roomCreations = limiterOf(options.roomCreationsPerMinute)
-    this.roomJoins = limiterOf(options.roomJoinsPerMinute)
+    this.roomEntries = limiterOf(options.roomJoinsPerMinute)
     this.roomQuota = new AddressRoomQuota(options.maxRoomsPerAddress, options.roomExists)
   }
 
@@ -145,13 +145,13 @@ export class SocketController {
       if (created.ok) this.roomQuota.record(address, created.value.roomCode)
       return created
     })
+    const entering = <T>(run: () => Result<T, ErrorCode>): Result<T, ErrorCode> =>
+      this.roomEntries.tryConsume(connection.clientAddress) ? run() : err("RATE_LIMITED")
     seated("room:join", joinRoomSchema, (input: ClientCommands["room:join"]["input"]) =>
-      this.roomJoins.tryConsume(connection.clientAddress)
-        ? joinRoom.execute(input)
-        : err("RATE_LIMITED")
+      entering(() => joinRoom.execute(input))
     )
     seated("room:reconnect", reconnectSchema, (input: ClientCommands["room:reconnect"]["input"]) =>
-      reconnectPlayer.execute(input)
+      entering(() => reconnectPlayer.execute(input))
     )
   }
 
