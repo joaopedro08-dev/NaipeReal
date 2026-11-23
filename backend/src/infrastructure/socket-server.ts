@@ -6,8 +6,15 @@ import type { ClientConnection, RawAck } from "../adapters/socket/connection.js"
 const MAX_MESSAGE_BYTES = 4096
 const PING_INTERVAL_MS = 15_000
 const PING_TIMEOUT_MS = 10_000
+const CONNECT_TIMEOUT_MS = 10_000
+const SECOND_SOCKET_REFUSED = "ONE_SOCKET_PER_CONNECTION"
 
 const noopAck: RawAck = () => undefined
+
+interface EngineConnection {
+  readonly request: IncomingMessage
+  once(event: "close", listener: () => void): unknown
+}
 
 export interface SocketServerOptions {
   readonly corsOrigins: readonly string[]
@@ -73,6 +80,17 @@ const trackConnections = (limit: number) => {
   }
 }
 
+const oneSocketPerConnection = () => {
+  const claimed = new WeakSet<object>()
+  return (socket: Socket, next: (failure?: Error) => void): void => {
+    const { client } = socket
+    if (claimed.has(client)) return next(new Error(SECOND_SOCKET_REFUSED))
+    claimed.add(client)
+    socket.once("disconnect", () => claimed.delete(client))
+    next()
+  }
+}
+
 const toConnection = (socket: Socket, clientAddress: string): ClientConnection => ({
   clientAddress,
   on: (event, listener) => {
@@ -111,14 +129,18 @@ export const createSocketServer = (
     maxHttpBufferSize: MAX_MESSAGE_BYTES,
     pingInterval: PING_INTERVAL_MS,
     pingTimeout: PING_TIMEOUT_MS,
+    connectTimeout: CONNECT_TIMEOUT_MS,
     destroyUpgrade: !options.keepForeignUpgrades,
     ...(options.corsOrigins.length > 0 ? { cors: { origin: [...options.corsOrigins] } } : {}),
   })
+  io.engine.on("connection", (raw: EngineConnection) => {
+    const address = addressOf(raw.request, options)
+    connections.opened(address)
+    raw.once("close", () => connections.closed(address))
+  })
+  io.use(oneSocketPerConnection())
   io.on("connection", (socket) => {
-    const clientAddress = addressOf(socket.request, options)
-    connections.opened(clientAddress)
-    socket.on("disconnect", () => connections.closed(clientAddress))
-    onConnection(toConnection(socket, clientAddress))
+    onConnection(toConnection(socket, addressOf(socket.request, options)))
   })
   return io
 }

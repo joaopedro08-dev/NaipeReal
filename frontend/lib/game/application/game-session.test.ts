@@ -104,6 +104,15 @@ describe("sessão do jogo", () => {
     expect(session.getState().seat).toEqual(SEAT)
   })
 
+  it("refaz o link de convite em vez de confiar no que foi guardado", () => {
+    const { session } = setup({
+      stored: { ...SEAT, inviteUrl: "https://golpe.test/?sala=ABC234" },
+    })
+    session.start()
+
+    expect(session.getState().seat?.inviteUrl).toBe(SEAT.inviteUrl)
+  })
+
   it("esquece o lugar quando a sala não existe mais", async () => {
     const { session, send, seats, address, server } = setup({ stored: SEAT })
     send.mockResolvedValue(refused("ROOM_NOT_FOUND", "Sala não encontrada."))

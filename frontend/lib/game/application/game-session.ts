@@ -154,7 +154,9 @@ export const createGameSession = ({
       const inviteCode = address.invitedRoomCode()
       const stored = seats.load()
       const seat =
-        stored && (!inviteCode || stored.code === inviteCode) ? stored : null
+        stored && (!inviteCode || stored.code === inviteCode)
+          ? { ...stored, inviteUrl: address.inviteLink(stored.code) }
+          : null
       if (stored && !seat) seats.forget()
       update({ started: true, seat, inviteCode, restoring: seat !== null })
       gateway.connect({
