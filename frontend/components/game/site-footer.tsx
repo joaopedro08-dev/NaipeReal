@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Bug, ExternalLink, Scale, ShieldAlert } from "lucide-react"
 
 import { GithubIcon } from "@/components/game/github-icon"
+import { BrandMark } from "@/components/game/site-header"
 import { Separator } from "@/components/ui/separator"
 import { GAMES } from "@/lib/game/domain/catalog"
 import {
@@ -46,7 +47,7 @@ function FooterColumn({
 }) {
   return (
     <nav aria-label={title} className="flex flex-col gap-1">
-      <h2 className="mb-1 font-heading text-sm font-semibold tracking-wide text-felt-foreground uppercase">
+      <h2 className="mb-1 font-heading text-base font-semibold text-felt-foreground">
         {title}
       </h2>
       {children}
@@ -56,12 +57,10 @@ function FooterColumn({
 
 export function SiteFooter() {
   return (
-    <footer className="mt-12 border-t border-felt-line bg-felt-deep text-sm">
+    <footer className="felt-surface hairline border-t text-sm">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="flex flex-col gap-3">
-          <p className="font-heading text-2xl font-extrabold text-gold">
-            Naipe Real
-          </p>
+          <BrandMark className="text-2xl" />
           <p className="max-w-xs text-felt-muted">
             Jogos de baralho online para jogar com os amigos, no PC ou no
             celular. Sem cadastro, sem anúncios e com código aberto.
@@ -70,7 +69,7 @@ export function SiteFooter() {
             href={REPOSITORY_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:bg-felt-glow inline-flex min-h-11 w-fit items-center gap-2 rounded-lg bg-felt px-4 font-semibold text-felt-foreground ring-1 ring-felt-line transition-colors outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg bg-felt px-4 font-semibold text-felt-foreground ring-1 ring-felt-line transition-colors outline-none hover:bg-felt-glow focus-visible:ring-2 focus-visible:ring-gold"
           >
             <GithubIcon className="size-5" />
             Ver no GitHub
@@ -128,7 +127,7 @@ export function SiteFooter() {
         </FooterColumn>
       </div>
 
-      <Separator className="bg-felt-line" />
+      <Separator className="bg-felt-line/50" />
 
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-center text-felt-muted sm:flex-row sm:text-left">
         <p>

@@ -6,7 +6,5 @@ import { SplitText } from "gsap/SplitText"
 
 gsap.registerPlugin(useGSAP, MotionPathPlugin, Physics2DPlugin, SplitText)
 
-export const prefersReducedMotion = (): boolean =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches
-
+export { MOTION_OK, prefersReducedMotion } from "./reduced-motion"
 export { gsap, SplitText, useGSAP }

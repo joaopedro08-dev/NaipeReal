@@ -1,15 +1,16 @@
 "use client"
 
 import { useRef } from "react"
-import { useGSAP } from "@gsap/react"
-import gsap from "gsap"
 import { DoorOpen, Plus, Shuffle } from "lucide-react"
 
 import { CardBack, CardFace } from "@/components/game/cards/card-face"
 import { GameButton } from "@/components/game/game-button"
+import {
+  gsap,
+  prefersReducedMotion,
+  useGSAP,
+} from "@/lib/animation/landing-gsap"
 import type { Card } from "@/lib/game/domain/types"
-
-gsap.registerPlugin(useGSAP)
 
 const ACES: readonly Card[] = ["AC", "AH", "AD", "AS"]
 
@@ -24,9 +25,7 @@ function Deck({ onReady }: { onReady: (shuffle: () => void) => void }) {
   useGSAP(
     (_, contextSafe) => {
       const cards = gsap.utils.toArray<HTMLElement>("[data-deck-card]")
-      const reduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches
+      const reduced = prefersReducedMotion()
       gsap.set(cards, { transformPerspective: 800 })
 
       if (reduced || !contextSafe) {
@@ -130,22 +129,18 @@ export function ClosingCall({
   return (
     <section
       aria-labelledby="chamada-titulo"
-      className="relative grid items-center gap-6 overflow-hidden rounded-3xl bg-felt-deep px-5 py-10 ring-1 ring-gold/40 sm:px-10 lg:grid-cols-2"
+      className="felt-surface relative grid items-center gap-6 overflow-hidden rounded-[2rem] px-5 py-12 shadow-lift ring-1 ring-gold/40 sm:px-12 lg:grid-cols-2"
     >
-      <div
-        aria-hidden
-        className="hero-glow pointer-events-none absolute inset-0 opacity-80"
-      />
       <div className="relative flex flex-col items-center gap-4 text-center lg:items-start lg:text-left">
         <h2
           id="chamada-titulo"
-          className="font-heading text-3xl font-bold text-balance sm:text-4xl"
+          className="font-heading text-[clamp(2.1rem,4.6vw,3.4rem)] leading-[1.02] font-semibold tracking-[-0.02em] [font-variation-settings:'SOFT'_50]"
         >
-          A mesa está pronta. Falta só você.
+          Monte a mesa agora
         </h2>
-        <p className="max-w-md text-felt-muted">
-          Chame os amigos, escolha o jogo e comece uma partida agora mesmo. Leva
-          menos tempo que embaralhar.
+        <p className="max-w-md text-lg/relaxed text-felt-muted">
+          Crie a sala, mande o link no grupo e comece quando todo mundo sentar.
+          Leva menos de um minuto.
         </p>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <GameButton

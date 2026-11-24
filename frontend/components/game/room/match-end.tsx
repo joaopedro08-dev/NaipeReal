@@ -43,29 +43,38 @@ export function MatchEnd({
     : []
   return (
     <div ref={stage} className="relative overflow-hidden">
-      <main className="relative mx-auto flex min-h-svh w-full max-w-lg flex-col justify-center gap-5 px-4 py-6">
+      <main className="relative mx-auto flex min-h-svh w-full max-w-lg flex-col justify-center gap-6 px-4 py-8">
         <header className="flex flex-col items-center gap-2 text-center">
           <m.span
             initial={{ scale: 0, rotate: -30 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 12 }}
+            className={cn(
+              "grid size-20 place-items-center rounded-full ring-1",
+              won
+                ? "bg-gold text-gold-foreground shadow-[0_0_48px_-6px_var(--gold)] ring-gold"
+                : "bg-felt-deep text-gold ring-gold/40"
+            )}
           >
-            <Trophy aria-hidden className="size-12 text-gold" />
+            <Trophy aria-hidden className="size-9" />
           </m.span>
           <h1
             ref={titleRef}
-            className="font-heading text-3xl font-bold text-balance"
+            className="font-heading text-[clamp(2rem,7vw,2.75rem)] leading-[1.05] font-semibold [font-variation-settings:'SOFT'_50]"
           >
             {title}
           </h1>
-          {subtitle && <p className="text-felt-muted">{subtitle}</p>}
+          {subtitle && <p className="max-w-sm text-felt-muted">{subtitle}</p>}
         </header>
 
-        <Card className="shadow-xl">
+        <Card className="shadow-lift">
           <CardContent className="flex flex-col gap-4">
             {roomWins.length > 0 && (
               <section aria-labelledby="placar-sala">
-                <h2 id="placar-sala" className="font-heading text-lg font-semibold">
+                <h2
+                  id="placar-sala"
+                  className="font-heading text-xl font-semibold"
+                >
                   Placar da sala
                 </h2>
                 <ol className="divide-y divide-border/60">
@@ -76,15 +85,16 @@ export function MatchEnd({
                         key={player.id}
                         className={cn(
                           "flex items-center justify-between py-2 text-sm",
-                          isViewer && "font-semibold text-gold"
+                          isViewer && "font-semibold"
                         )}
                       >
                         <span className="truncate">
                           {player.nickname}
                           {isViewer && " (você)"}
                         </span>
-                        <span className="tabular-nums font-semibold">
-                          {player.wins} {player.wins === 1 ? "vitória" : "vitórias"}
+                        <span className="font-semibold tabular-nums">
+                          {player.wins}{" "}
+                          {player.wins === 1 ? "vitória" : "vitórias"}
                         </span>
                       </li>
                     )

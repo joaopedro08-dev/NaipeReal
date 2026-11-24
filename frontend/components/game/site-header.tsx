@@ -32,13 +32,13 @@ export function BrandMark({ className }: { className?: string }) {
     <Link
       href="/"
       className={cn(
-        "group/brand inline-flex min-h-11 items-center gap-2 rounded-md font-heading text-xl font-extrabold text-gold outline-none focus-visible:ring-2 focus-visible:ring-gold",
+        "group/brand inline-flex min-h-11 items-center gap-2.5 rounded-md font-heading text-xl font-semibold tracking-tight text-felt-foreground outline-none focus-visible:ring-2 focus-visible:ring-gold",
         className
       )}
     >
       <span
         aria-hidden
-        className="flex h-8 w-6 -rotate-8 items-center justify-center rounded-[0.3rem] bg-playing-card shadow-md ring-1 ring-black/25 transition-transform duration-300 group-hover/brand:rotate-6"
+        className="playing-card flex h-8 w-6 -rotate-8 items-center justify-center rounded-[0.3rem] ring-1 ring-gold-deep/60 transition-transform duration-300 ease-snap group-hover/brand:rotate-6"
       >
         <Spade fill="currentColor" className="size-3.5 text-suit-black" />
       </span>
@@ -64,10 +64,10 @@ function MobileMenu({
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="w-[min(20rem,85vw)] border-felt-line bg-felt-deep text-felt-foreground"
+        className="felt-surface w-[min(20rem,85vw)] border-felt-line text-felt-foreground"
       >
         <SheetHeader className="flex-row items-center justify-between p-4">
-          <SheetTitle className="font-heading text-lg font-bold text-gold">
+          <SheetTitle className="font-heading text-xl font-semibold text-felt-foreground">
             Menu
           </SheetTitle>
           <SheetDescription className="sr-only">
@@ -119,7 +119,7 @@ export function SiteHeader({
   cta: HeaderLink
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-felt-line/60 bg-felt-deep/85 backdrop-blur-md">
+    <header className="hairline sticky top-0 z-30 border-b bg-felt-deep/80 backdrop-blur-md supports-[backdrop-filter]:bg-felt-deep/65">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-1 px-4">
         <BrandMark className="mr-auto" />
         <nav

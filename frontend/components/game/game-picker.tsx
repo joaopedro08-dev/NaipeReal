@@ -24,7 +24,7 @@ function CompactOption({
         {checked && <Check aria-hidden className="ml-auto size-4" />}
       </span>
       <span className="text-xs text-muted-foreground">
-        {describePlayerCounts(game)} · {game.deck}
+        {describePlayerCounts(game)}, {game.deck}
       </span>
     </>
   )

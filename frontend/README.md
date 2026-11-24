@@ -1,6 +1,6 @@
 # Naipe Real: frontend
 
-Interface do jogo em Next.js 16, React 19, shadcn/ui, framer-motion e GSAP. O servidor decide tudo: a tela só mostra o estado que chega em `room:state` e envia comandos.
+Interface do jogo em Next.js 16, React 19, shadcn/ui, framer-motion, GSAP e Three.js. O servidor decide tudo: a tela só mostra o estado que chega em `room:state` e envia comandos.
 
 ## Camadas
 
@@ -22,7 +22,11 @@ O menu da partida tem um painel com sons, animações reduzidas, cartas grandes,
 
 ## Animações
 
-A tela inicial carrega sem framer-motion nem GSAP. Os dois ficam em `components/game/room/room-screens.tsx`, que é baixado em segundo plano depois que a página abre. Todas as animações respeitam `prefers-reduced-motion` e a opção de animações reduzidas do painel de preferências.
+A tela inicial importa só o núcleo do GSAP com ScrollTrigger e SplitText (`lib/animation/landing-gsap.ts`). Os plugins das mesas (MotionPath e Physics2D) ficam em `lib/animation/gsap.ts`, usado por `components/game/room/room-screens.tsx`, que é baixado em segundo plano depois que a página abre. A vitrine dos jogos e o "Como funciona" vêm em chunks separados, e os recursos do framer-motion da tela inicial carregam sob demanda.
+
+A carta do topo da tela inicial é um modelo procedural em Three.js (`lib/three/hero-card-scene.ts` e `lib/three/card-art.ts`): geometria extrudada com borda dourada e faces desenhadas em canvas. O pacote `three` só é baixado por import dinâmico quando o navegador tem WebGL, não pediu economia de dados e tem mais de 2 núcleos; nos outros casos fica a carta estática em HTML. A cena só renderiza enquanto está visível e para quando a aba fica em segundo plano.
+
+Todas as animações respeitam `prefers-reduced-motion` e a opção de animações reduzidas do painel de preferências.
 
 ## Verificação
 

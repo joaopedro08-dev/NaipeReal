@@ -252,7 +252,7 @@ export function TrucoHand({
     <section
       aria-label="Sua mão e ações"
       className={cn(
-        "flex flex-col gap-2 border-t border-felt-line bg-felt-deep p-3 lg:col-start-1 lg:row-start-2",
+        "hairline felt-surface flex flex-col gap-2 border-t p-3 shadow-[0_-12px_32px_-18px_rgb(0_0_0/0.6)] lg:col-start-1 lg:row-start-2",
         acting && "border-t-2 border-t-gold"
       )}
     >

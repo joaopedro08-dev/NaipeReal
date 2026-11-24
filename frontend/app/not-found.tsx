@@ -1,18 +1,20 @@
 import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
+import { GameButton } from "@/components/game/game-button"
+import { StatusPage } from "@/components/game/status/status-page"
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="font-heading text-3xl font-bold">Página não encontrada</h1>
-      <p className="text-felt-muted">
-        Este endereço não existe. Volte para o início e crie ou entre em uma
-        sala.
-      </p>
-      <Button asChild className="h-11 px-4 text-sm font-semibold">
-        <Link href="/">Voltar ao início</Link>
-      </Button>
-    </main>
+    <StatusPage
+      title="Essa carta não está no baralho"
+      action={
+        <GameButton asChild tone="gold" className="h-12 px-6 text-base">
+          <Link href="/">Voltar ao início</Link>
+        </GameButton>
+      }
+    >
+      O endereço não existe. Volte ao início para criar uma sala ou entrar com
+      um código.
+    </StatusPage>
   )
 }

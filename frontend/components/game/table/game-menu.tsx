@@ -81,9 +81,9 @@ export function GameMenu({
           <SheetHeader className="flex-row items-center justify-between gap-2 p-4 pb-2">
             <div>
               <SheetTitle className="text-lg">Menu</SheetTitle>
-              <SheetDescription className="text-sm">
-                Sala <RoomCodeVisibility code={room.code} /> · turno{" "}
-                {game.turnNumber}
+              <SheetDescription className="flex flex-wrap items-center gap-x-2 text-sm">
+                Sala <RoomCodeVisibility code={room.code} />
+                <span>Turno {game.turnNumber}</span>
               </SheetDescription>
             </div>
             <SheetClose asChild>

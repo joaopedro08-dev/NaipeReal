@@ -20,7 +20,7 @@ Cada jogo é um módulo registrado num catálogo; a sala, o tempo real e o reló
 | Pasta                            | Conteúdo                                                                                                 |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | [`backend`](backend/README.md)   | Servidor do jogo em Node.js 24, Socket.io e TypeScript. Guarda o estado em memória e confere cada jogada |
-| [`frontend`](frontend/README.md) | Interface em Next.js 16, shadcn/ui, framer-motion e GSAP. Mostra o estado que o servidor envia           |
+| [`frontend`](frontend/README.md) | Interface em Next.js 16, shadcn/ui, framer-motion, GSAP e Three.js. Mostra o estado que o servidor envia |
 | `shared`                         | Pacote `@naipe-real/contracts`: esquemas Zod dos comandos, usados pelo backend e pelo frontend           |
 | `infra`                          | Prometheus e Grafana para observar o serviço                                                             |
 | `docs`                           | Arquitetura, medições de desempenho e implantação                                                        |

@@ -10,7 +10,7 @@ export default function GlobalError({ retry }: { retry: () => void }) {
           <span aria-hidden className="text-5xl tracking-widest text-gold">
             ♠♥♦♣
           </span>
-          <h1 className="text-3xl font-bold">Algo deu errado</h1>
+          <h1 className="text-3xl font-semibold">A tela não carregou</h1>
           <p className="max-w-md text-felt-muted">
             O jogo não carregou. Se você estava em uma partida, seu lugar
             continua guardado por 2 minutos.

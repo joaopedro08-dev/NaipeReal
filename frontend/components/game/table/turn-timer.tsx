@@ -2,7 +2,6 @@
 
 import { useCallback, useSyncExternalStore } from "react"
 import { m } from "framer-motion"
-import { Timer } from "lucide-react"
 
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
@@ -58,6 +57,10 @@ export function TurnClock({
   const seconds =
     durationMs === undefined ? left : Math.min(left, durationMs / 1000)
   const urgent = seconds <= URGENT_SECONDS
+  const sweep =
+    durationMs === undefined
+      ? 100
+      : Math.max(0, Math.min(100, ((seconds * 1000) / durationMs) * 100))
 
   return (
     <m.span
@@ -65,13 +68,22 @@ export function TurnClock({
       aria-label={`${seconds} segundos restantes`}
       animate={urgent ? { scale: [1, 1.08, 1] } : { scale: 1 }}
       transition={urgent ? { duration: 1, repeat: Infinity } : undefined}
-      className={cn(
-        "inline-flex h-8 shrink-0 items-center gap-1 rounded-md bg-felt px-2 text-sm font-semibold tabular-nums ring-1 ring-felt-line",
-        urgent && "bg-gold text-gold-foreground ring-gold"
-      )}
+      style={
+        {
+          "--timer-sweep": `${sweep}%`,
+          "--timer-color": urgent ? "var(--suit-red)" : "var(--gold)",
+        } as React.CSSProperties
+      }
+      className="timer-ring relative grid size-10 shrink-0 place-items-center rounded-full"
     >
-      <Timer aria-hidden className="size-4" />
-      {seconds} s
+      <span
+        className={cn(
+          "grid size-[2.05rem] place-items-center rounded-full bg-felt-abyss font-mono text-[0.8rem] font-semibold tabular-nums",
+          urgent ? "text-felt-foreground" : "text-gold"
+        )}
+      >
+        {seconds}
+      </span>
     </m.span>
   )
 }
@@ -91,7 +103,7 @@ export function TurnProgress({
     <Progress
       aria-hidden
       value={Math.min(100, ((seconds * 1000) / durationMs) * 100)}
-      className="h-1 shrink-0 rounded-none bg-felt-deep [&>[data-slot=progress-indicator]]:bg-gold"
+      className="h-0.5 shrink-0 rounded-none bg-transparent [&>[data-slot=progress-indicator]]:bg-gold [&>[data-slot=progress-indicator]]:transition-transform [&>[data-slot=progress-indicator]]:duration-300 [&>[data-slot=progress-indicator]]:ease-linear"
     />
   )
 }
