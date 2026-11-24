@@ -57,12 +57,10 @@ export function RoomTicket({
   return (
     <section
       aria-label="Convite da sala"
-      className="relative grid overflow-hidden rounded-3xl bg-felt-deep text-felt-foreground shadow-xl ring-1 ring-gold/40 md:grid-cols-[auto_1fr]"
+      className="felt-surface relative grid overflow-hidden rounded-3xl text-felt-foreground shadow-lift ring-1 ring-gold/40 md:grid-cols-[auto_1fr] lg:grid-cols-1"
     >
       <div className="flex flex-col items-center gap-2 p-5 sm:items-start">
-        <p className="text-sm font-semibold tracking-widest text-gold uppercase">
-          Código da sala
-        </p>
+        <p className="font-heading text-lg font-semibold">Código da sala</p>
         <div className="flex flex-col items-center gap-2">
           <RoomCodeVisibility
             code={code}
@@ -73,14 +71,14 @@ export function RoomTicket({
           <CopyCodeButton code={code} />
         </div>
       </div>
-      <div className="relative flex flex-col justify-center gap-2 border-t-2 border-dashed border-felt-line/70 p-5 md:border-t-0 md:border-l-2">
+      <div className="relative flex flex-col justify-center gap-2 border-t-2 border-dashed border-felt-line/70 p-5 md:border-t-0 md:border-l-2 lg:border-t-2 lg:border-l-0">
         <span
           aria-hidden
           className="absolute -top-3 -left-3 size-6 rounded-full bg-felt"
         />
         <span
           aria-hidden
-          className="absolute -top-3 -right-3 size-6 rounded-full bg-felt md:top-auto md:right-auto md:-bottom-3 md:-left-3"
+          className="absolute -top-3 -right-3 size-6 rounded-full bg-felt md:top-auto md:right-auto md:-bottom-3 md:-left-3 lg:-top-3 lg:-right-3 lg:bottom-auto lg:left-auto"
         />
         <p className="font-heading text-lg font-semibold">Chame a turma</p>
         <p className="text-sm text-felt-muted">

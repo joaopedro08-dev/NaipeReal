@@ -1,10 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { BookOpen, Bug, MessageCircleQuestion } from "lucide-react"
+import { BookOpen, Bug } from "lucide-react"
 
 import { GameButton } from "@/components/game/game-button"
-import { Reveal } from "@/components/game/home/reveal"
+import { SectionIntro } from "@/components/game/home/section-intro"
 import {
   Accordion,
   AccordionContent,
@@ -65,20 +65,13 @@ export function Faq() {
     <section
       id="duvidas"
       aria-labelledby="duvidas-titulo"
-      className="grid scroll-mt-20 gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12"
+      className="grid scroll-mt-20 gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16"
     >
-      <Reveal className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-        <MessageCircleQuestion aria-hidden className="size-10 text-gold" />
-        <h2
-          id="duvidas-titulo"
-          className="font-heading text-3xl font-bold text-balance sm:text-4xl"
-        >
-          Perguntas frequentes
-        </h2>
-        <p className="text-felt-muted">
-          O essencial para começar. As regras completas de cada jogo ficam na
-          página de informações.
-        </p>
+      <div className="flex flex-col gap-5 lg:sticky lg:top-24 lg:self-start">
+        <SectionIntro id="duvidas-titulo" title="Perguntas de quem vai sentar">
+          O essencial para começar. As regras completas de cada jogo estão na
+          página de regras.
+        </SectionIntro>
         <div className="flex flex-wrap gap-2">
           <GameButton asChild>
             <Link href="/informacoes">
@@ -94,25 +87,27 @@ export function Faq() {
             </a>
           </GameButton>
         </div>
-      </Reveal>
-      <Reveal>
-        <Accordion type="single" collapsible className="flex flex-col gap-2">
-          {QUESTIONS.map(({ question, answer }) => (
-            <AccordionItem
-              key={question}
-              value={question}
-              className="overflow-hidden rounded-xl border-0 bg-felt-deep/70 ring-1 ring-felt-line transition-colors data-open:bg-felt-deep data-open:ring-gold/50"
-            >
-              <AccordionTrigger className="min-h-14 items-center px-4 text-base font-semibold hover:no-underline focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-inset **:data-[slot=accordion-trigger-icon]:text-gold">
-                {question}
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 text-sm/relaxed text-felt-muted">
-                {answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </Reveal>
+      </div>
+      <Accordion
+        type="single"
+        collapsible
+        className="hairline rounded-none border-0 border-t"
+      >
+        {QUESTIONS.map(({ question, answer }) => (
+          <AccordionItem
+            key={question}
+            value={question}
+            className="hairline border-b transition-colors data-open:bg-transparent"
+          >
+            <AccordionTrigger className="min-h-16 items-center px-1 py-4 font-heading text-lg font-medium hover:no-underline focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-inset **:data-[slot=accordion-trigger-icon]:size-5 **:data-[slot=accordion-trigger-icon]:text-gold sm:text-xl">
+              {question}
+            </AccordionTrigger>
+            <AccordionContent className="max-w-[62ch] px-1 pb-5 text-[0.95rem]/relaxed text-felt-muted">
+              {answer}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
     </section>
   )
 }

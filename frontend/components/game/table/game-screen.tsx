@@ -112,9 +112,9 @@ export function GameScreen({
 
         <aside
           aria-label="Histórico de jogadas"
-          className="hidden min-h-0 overflow-y-auto border-l border-felt-line bg-felt-deep p-3 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:block [&_.text-muted-foreground]:text-felt-muted"
+          className="hairline hidden min-h-0 overflow-y-auto border-l bg-felt-abyss/80 p-3 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:block [&_.text-muted-foreground]:text-felt-muted"
         >
-          <h2 className="mb-2 font-heading text-sm font-semibold">
+          <h2 className="mb-3 font-heading text-base font-semibold">
             Histórico de jogadas
           </h2>
           <HistoryList history={game.history} />

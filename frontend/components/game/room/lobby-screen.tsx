@@ -33,23 +33,22 @@ import {
 } from "@/lib/game/domain/catalog"
 import { minimumPlayers, readiness } from "@/lib/game/domain/lobby"
 import type { RoomState } from "@/lib/game/domain/types"
-import { cn } from "@/lib/utils"
 
 function LobbyHeader() {
   return (
     <header className="flex items-center gap-2">
-      <p className="mr-auto inline-flex items-center gap-2 font-heading text-lg font-extrabold text-gold">
+      <p className="mr-auto inline-flex items-center gap-2.5 font-heading text-xl font-semibold tracking-tight">
         <span
           aria-hidden
-          className="flex h-7 w-5 -rotate-8 items-center justify-center rounded-[0.3rem] bg-playing-card shadow ring-1 ring-black/25"
+          className="playing-card flex h-8 w-6 -rotate-8 items-center justify-center rounded-[0.3rem] ring-1 ring-gold-deep/60"
         >
-          <Spade fill="currentColor" className="size-3 text-suit-black" />
+          <Spade fill="currentColor" className="size-3.5 text-suit-black" />
         </span>
-        Naipe Real
+        <span className="hidden sm:inline">Naipe Real</span>
       </p>
       <Badge
         variant="outline"
-        className="h-7 gap-1.5 border-felt-line px-2.5 text-xs text-felt-foreground"
+        className="h-8 gap-2 border-felt-line/70 bg-felt-deep/60 px-3 text-sm text-felt-foreground"
       >
         <span
           aria-hidden
@@ -76,11 +75,11 @@ function GameSection({
   onRandom: () => void
 }) {
   const game = gameInfo(room.gameId)
-  const { suit, accent } = GAME_IDENTITY[room.gameId]
+  const { suit } = GAME_IDENTITY[room.gameId]
   return (
     <section aria-labelledby="titulo-jogo" className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <h2 id="titulo-jogo" className="font-heading text-lg font-semibold">
+        <h2 id="titulo-jogo" className="font-heading text-xl font-semibold">
           {editable ? "Escolha o jogo" : "Jogo da sala"}
         </h2>
         <a
@@ -113,16 +112,16 @@ function GameSection({
           </GameButton>
         </>
       ) : (
-        <div className="flex items-center gap-3 rounded-xl bg-felt-deep p-3 text-felt-foreground">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-playing-card shadow">
+        <div className="felt-surface flex items-center gap-3 rounded-xl p-3 text-felt-foreground">
+          <span className="playing-card flex h-14 w-10 shrink-0 items-center justify-center rounded-md">
             <SuitIcon suit={suit} className="size-6" />
           </span>
           <span className="flex min-w-0 flex-col">
-            <strong className={cn("font-heading text-lg", accent)}>
+            <strong className="font-heading text-lg font-semibold">
               {game.name}
             </strong>
             <span className="text-sm text-felt-muted">
-              {describePlayerCounts(game)} · {game.mode}
+              {describePlayerCounts(game)}, {game.mode.toLowerCase()}
             </span>
           </span>
         </div>
@@ -148,7 +147,7 @@ function StartDock({
   const minimum = minimumPlayers(room)
 
   return (
-    <div className="sticky bottom-3 z-20 flex flex-col gap-3 rounded-2xl bg-felt-deep/95 p-3 text-felt-foreground shadow-2xl ring-1 ring-gold/40 backdrop-blur sm:p-4 lg:col-start-2">
+    <div className="flex flex-col gap-3 rounded-2xl bg-felt-abyss/90 p-3 text-felt-foreground shadow-lift ring-1 ring-gold/40 backdrop-blur-md sm:p-4">
       <div className="flex items-center gap-3">
         {ready ? (
           <CheckCircle2
@@ -182,7 +181,7 @@ function StartDock({
           Iniciar {game.name}
         </GameButton>
       ) : (
-        <p className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-felt px-3 text-center text-sm text-felt-muted">
+        <p className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-felt/70 px-3 text-center text-sm text-felt-muted">
           <Spinner aria-hidden className="size-4" />
           Aguardando {host?.nickname ?? "o anfitrião"} iniciar a partida.
         </p>
@@ -203,17 +202,18 @@ export function LobbyScreen({
   const viewerIsHost = room.hostId === room.viewerId
 
   return (
-    <main className="hero-glow min-h-svh">
+    <main className="min-h-svh">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 pt-4 pb-6 sm:pt-6">
         <LobbyHeader />
-        <RoomTicket code={room.code} inviteUrl={inviteUrl} />
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.2fr_1fr] lg:items-start">
-          <div className="rounded-3xl bg-felt-deep/50 p-4 ring-1 ring-felt-line sm:p-5 lg:row-span-2">
+        <div className="grid grid-cols-1 gap-5 [grid-template-areas:'ticket'_'table'_'settings'_'dock'] lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:gap-x-8 lg:[grid-template-areas:'table_ticket'_'dock_settings']">
+          <div className="[grid-area:ticket]">
+            <RoomTicket code={room.code} inviteUrl={inviteUrl} />
+          </div>
+          <div className="felt-surface rounded-[2rem] p-4 ring-1 ring-felt-line/60 [grid-area:table] sm:p-6">
             <LobbyTable room={room} onKick={kickPlayer} />
           </div>
-
-          <Card className="shadow-xl">
+          <Card className="shadow-lift [grid-area:settings]">
             <CardContent className="flex flex-col gap-5">
               <GameSection
                 room={room}
@@ -251,8 +251,9 @@ export function LobbyScreen({
               {refusal && <RefusalMessage>{refusal}</RefusalMessage>}
             </CardContent>
           </Card>
-
-          <StartDock room={room} busy={busy} onStart={startMatch} />
+          <div className="sticky bottom-3 z-20 [grid-area:dock] lg:top-6 lg:bottom-auto">
+            <StartDock room={room} busy={busy} onStart={startMatch} />
+          </div>
         </div>
       </div>
     </main>

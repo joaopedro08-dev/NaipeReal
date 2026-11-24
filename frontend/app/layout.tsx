@@ -1,14 +1,15 @@
 import type { Metadata, Viewport } from "next"
-import { Geist_Mono, Public_Sans, Space_Grotesk } from "next/font/google"
+import { Fraunces, Geist_Mono, Public_Sans } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SEAT_BOOT_SCRIPT } from "@/lib/game/infrastructure/local-seat-store"
 import { cn } from "@/lib/utils"
 
-const spaceGroteskHeading = Space_Grotesk({
+const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-heading",
+  axes: ["opsz", "SOFT"],
 })
 
 const publicSans = Public_Sans({ subsets: ["latin"], variable: "--font-sans" })
@@ -37,8 +38,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0b3b2c" },
-    { media: "(prefers-color-scheme: dark)", color: "#07211a" },
+    { media: "(prefers-color-scheme: light)", color: "#0e3b2e" },
+    { media: "(prefers-color-scheme: dark)", color: "#082219" },
   ],
 }
 
@@ -57,7 +58,7 @@ export default function RootLayout({
         fontMono.variable,
         "font-sans",
         publicSans.variable,
-        spaceGroteskHeading.variable
+        fraunces.variable
       )}
     >
       <head>

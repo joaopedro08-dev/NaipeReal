@@ -101,7 +101,7 @@ export function InfoNav({
     <>
       <nav
         aria-label="Seções da página"
-        className="sticky top-16 z-20 -mx-4 border-b border-felt-line/60 bg-felt-deep/90 backdrop-blur-md lg:hidden"
+        className="hairline sticky top-16 z-20 -mx-4 border-b bg-felt-deep/85 backdrop-blur-md lg:hidden"
       >
         <div
           ref={strip}
@@ -121,7 +121,7 @@ export function InfoNav({
         aria-label="Índice"
         className="sticky top-24 hidden flex-col gap-1 self-start lg:flex"
       >
-        <p className="mb-2 px-3 font-heading text-xs font-semibold tracking-widest text-gold uppercase">
+        <p className="mb-2 px-3 font-heading text-base font-semibold text-felt-foreground">
           Nesta página
         </p>
         {sections.map((section) => (

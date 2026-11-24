@@ -54,7 +54,7 @@ export function HandDock({
     <section
       aria-label="Sua mão e ações"
       className={cn(
-        "flex min-w-0 flex-col gap-2 overflow-hidden border-t border-felt-line bg-felt-deep p-3 transition-colors lg:col-start-1 lg:row-start-2 short:col-start-2 short:row-start-1 short:overflow-y-auto short:border-t-0 short:border-l",
+        "hairline felt-surface flex min-w-0 flex-col gap-2 overflow-hidden border-t p-3 shadow-[0_-12px_32px_-18px_rgb(0_0_0/0.6)] transition-colors lg:col-start-1 lg:row-start-2 short:col-start-2 short:row-start-1 short:overflow-y-auto short:border-t-0 short:border-l",
         isMyTurn &&
           "border-t-2 border-t-gold short:border-t-0 short:border-l-2 short:border-l-gold"
       )}

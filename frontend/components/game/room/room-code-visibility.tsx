@@ -49,7 +49,14 @@ export function RoomCodeVisibility({
   const value = visible ? code : HIDDEN_ROOM_CODE
 
   return (
-    <span className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:justify-between">
+    <span
+      className={cn(
+        "items-center gap-2",
+        variant === "tiles"
+          ? "flex flex-col justify-center sm:flex-row sm:justify-between"
+          : "inline-flex"
+      )}
+    >
       <span
         role="status"
         aria-label={roomCodeAccessibleLabel(code, visible)}
@@ -63,7 +70,7 @@ export function RoomCodeVisibility({
               <span
                 key={position}
                 aria-hidden
-                className="flex h-12 w-9 items-center justify-center rounded-lg bg-playing-card text-2xl text-suit-black shadow-md ring-1 ring-black/20 sm:h-16 sm:w-12 sm:text-3xl"
+                className="playing-card flex h-12 w-9 items-center justify-center rounded-lg text-2xl text-suit-black ring-1 ring-black/15 sm:h-16 sm:w-12 sm:text-3xl"
               >
                 {letter}
               </span>

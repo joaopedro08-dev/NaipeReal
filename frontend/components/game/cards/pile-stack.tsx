@@ -39,7 +39,7 @@ export function PileStack({
       {top ? (
         <>
           {size > 1 && (
-            <span className="absolute inset-0 translate-x-1 translate-y-1 rounded-lg bg-playing-card/70 ring-1 ring-black/25" />
+            <span className="absolute inset-0 translate-x-1 translate-y-1 rounded-lg bg-playing-card-edge ring-1 ring-black/25" />
           )}
           <CardFace
             card={top}
@@ -53,7 +53,7 @@ export function PileStack({
           <Layers aria-hidden className="size-4 text-felt-muted" />
         </span>
       )}
-      <span className="absolute -right-2 -bottom-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-felt-deep px-1 font-heading text-xs font-bold text-white tabular-nums ring-1 ring-felt-line">
+      <span className="absolute -right-2 -bottom-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-felt-abyss px-1 font-mono text-xs font-semibold text-gold tabular-nums ring-1 ring-gold/40">
         {size}
       </span>
     </>

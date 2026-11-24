@@ -1,12 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { m } from "framer-motion"
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 import { DoorOpen, Mail, Plus } from "lucide-react"
 
 import { GameButton } from "@/components/game/game-button"
-import { GamePicker } from "@/components/game/game-picker"
 import { ENTRY_ANCHOR } from "@/components/game/home/use-entry"
 import type { Entry, EntryMode } from "@/components/game/home/use-entry"
 import { RefusalMessage } from "@/components/game/refusal-message"
@@ -20,7 +18,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { gameInfo } from "@/lib/game/domain/catalog"
+import { describePlayerCounts, gameInfo } from "@/lib/game/domain/catalog"
 import {
   NICKNAME_MAX_LENGTH,
   normalizeRoomCode,
@@ -77,7 +75,7 @@ function StepBullet({ step }: { step: number }) {
   return (
     <span
       aria-hidden
-      className="flex size-6 shrink-0 items-center justify-center rounded-full bg-felt-deep font-heading text-xs font-bold text-gold"
+      className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary font-heading text-xs font-semibold text-primary-foreground"
     >
       {step}
     </span>
@@ -128,33 +126,27 @@ function RoomCodeField({
 
 function InviteTicket({ code }: { code: string }) {
   return (
-    <m.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center gap-3 rounded-xl bg-felt-deep p-4 text-center text-felt-foreground ring-2 ring-gold/70"
-    >
+    <div className="flex animate-in flex-col items-center gap-3 rounded-xl bg-felt-deep p-4 text-center text-felt-foreground ring-2 ring-gold/70 duration-300 fade-in slide-in-from-top-2">
       <span className="flex items-center gap-2 text-sm font-semibold text-gold">
         <Mail aria-hidden className="size-4" />
         Você recebeu um convite
       </span>
       <p className="sr-only">Código da sala: {code}</p>
-      <span aria-hidden className="flex gap-1 [perspective:600px]">
+      <span aria-hidden className="flex gap-1">
         {[...code].map((letter, position) => (
-          <m.span
+          <span
             key={position}
-            initial={{ rotateY: 90, opacity: 0 }}
-            animate={{ rotateY: 0, opacity: 1 }}
-            transition={{ delay: 0.15 + position * 0.06 }}
-            className="flex h-11 w-8 items-center justify-center rounded-md bg-playing-card font-mono text-xl font-bold text-suit-black shadow-md sm:w-9"
+            style={{ animationDelay: `${150 + position * 60}ms` }}
+            className="playing-card flex h-11 w-8 animate-in items-center justify-center rounded-md font-mono text-xl font-bold text-suit-black duration-500 ease-snap fill-mode-both zoom-in-75 fade-in sm:w-9"
           >
             {letter}
-          </m.span>
+          </span>
         ))}
       </span>
       <p className="text-sm text-felt-muted">
         Escolha seu apelido e toque em Entrar na sala.
       </p>
-    </m.div>
+    </div>
   )
 }
 
@@ -180,35 +172,23 @@ export function EntryPanel({
   const game = gameInfo(gameId)
 
   return (
-    <m.div
-      id={ENTRY_ANCHOR}
-      initial={{ opacity: 0, y: 28, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: "spring", stiffness: 140, damping: 18, delay: 0.15 }}
-      className="relative w-full scroll-mt-24 pt-3"
-    >
+    <div id={ENTRY_ANCHOR} className="relative w-full scroll-mt-24 pt-3">
       <div
         aria-hidden
-        className="card-back absolute inset-x-8 top-0 h-8 rotate-2 rounded-xl shadow-lg sm:inset-x-12"
+        className="card-back absolute inset-x-8 top-0 h-8 rotate-2 rounded-xl sm:inset-x-12"
       />
       <div
         aria-hidden
-        className="card-back absolute inset-x-5 top-1.5 h-8 -rotate-1 rounded-xl shadow-lg sm:inset-x-8"
+        className="card-back absolute inset-x-5 top-1.5 h-8 -rotate-1 rounded-xl sm:inset-x-8"
       />
-      <Card className="relative gap-0 overflow-hidden py-0 shadow-2xl ring-2 ring-gold/50">
-        <div className="relative flex flex-col gap-1 bg-felt-deep px-5 py-4 text-felt-foreground">
-          <h2 className="font-heading text-2xl font-bold">
+      <Card className="relative gap-0 overflow-hidden py-0 shadow-lift ring-1 ring-gold/40">
+        <div className="felt-surface relative flex flex-col gap-1 px-5 py-4 text-felt-foreground">
+          <h2 className="font-heading text-2xl font-semibold">
             {invited ? "Sua cadeira está guardada" : "Sente-se à mesa"}
           </h2>
           <p className="text-sm text-felt-muted">
-            Sem conta e sem senha. Só um apelido e você está dentro.
+            Sem conta e sem senha: só um apelido.
           </p>
-          <span
-            aria-hidden
-            className="absolute top-3 right-4 hidden font-heading text-xl tracking-widest text-felt-line select-none min-[400px]:block"
-          >
-            ♠♥♦♣
-          </span>
         </div>
         <CardContent className="py-5">
           <form
@@ -272,14 +252,9 @@ export function EntryPanel({
               </TabsList>
 
               <TabsContent value="criar" className="flex flex-col gap-3">
-                <GamePicker
-                  value={gameId}
-                  onChange={entry.setGameId}
-                  disabled={busy}
-                  label="Jogo da nova sala"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Dá para trocar de jogo depois, no saguão da sala.
+                <p className="text-sm text-muted-foreground">
+                  {game.name}, {describePlayerCounts(game)}. Dá para trocar de
+                  jogo depois, no saguão.
                 </p>
                 <GameButton
                   type="submit"
@@ -313,6 +288,6 @@ export function EntryPanel({
           </form>
         </CardContent>
       </Card>
-    </m.div>
+    </div>
   )
 }

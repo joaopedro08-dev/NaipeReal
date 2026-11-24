@@ -44,7 +44,7 @@ function ScoreRow({
         {won && (
           <Trophy
             aria-label="Vencedor"
-            className="size-4 shrink-0 text-gold fill-gold/30"
+            className="size-4 shrink-0 fill-gold/40 text-gold-deep"
           />
         )}
         <span className="ml-auto shrink-0 text-base font-semibold tabular-nums">
@@ -74,7 +74,7 @@ export function EndScreen({
       subtitle={explainEnd(game)}
     >
       <section aria-labelledby="titulo-placar">
-        <h2 id="titulo-placar" className="font-heading text-lg font-semibold">
+        <h2 id="titulo-placar" className="font-heading text-xl font-semibold">
           Placar
         </h2>
         <ol>
